@@ -1,7 +1,7 @@
-export const APP_NAME = "Verida App Template"
+export const APP_NAME = "Verida: AI Developer Admin"
 
-export const APP_TITLE = "Verida App Template"
+export const APP_TITLE = "Verida: AI Developer Admin"
 
-export const APP_DESCRIPTION = "Verida App Template"
+export const APP_DESCRIPTION = "Admin interface for Verida AI developers"
 
 export const VERIDA_APPLICATION_CONTEXT_NAME = "Verida: Vault"

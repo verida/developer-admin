@@ -1,5 +1,5 @@
 import { type DatastoreOpenConfig, type IDatastore } from "@verida/types"
-import { type WebUser } from "@verida/web-helpers"
+import { type WebUser, type WebUserProfile } from "@verida/web-helpers"
 import React, { createContext } from "react"
 
 export type VeridaContextType = {
@@ -9,6 +9,7 @@ export type VeridaContextType = {
   isConnecting: boolean
   isDisconnecting: boolean
   did: string | null
+  profile: WebUserProfile | undefined
   connect: () => Promise<void>
   disconnect: () => Promise<void>
   getAccountSessionToken: () => Promise<string>

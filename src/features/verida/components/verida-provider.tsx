@@ -1,7 +1,7 @@
 "use client"
 
 import { type DatastoreOpenConfig } from "@verida/types"
-import { WebUser } from "@verida/web-helpers"
+import { WebUser, type WebUserProfile } from "@verida/web-helpers"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { commonConfig } from "@/config/common"
@@ -44,6 +44,7 @@ export function VeridaProvider(props: VeridaProviderProps) {
   const [isConnecting, setIsConnecting] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
   const [did, setDid] = useState<string | null>(null)
+  const [profile, setProfile] = useState<WebUserProfile>()
 
   const updateStates = useCallback(async () => {
     const newIsConnected = webUserInstance.isConnected()
@@ -54,6 +55,7 @@ export function VeridaProvider(props: VeridaProviderProps) {
     if (!newIsConnected) {
       // If not connected, no need to continue, just clear everything
       setDid(null)
+      setProfile(undefined)
       return
     }
 
@@ -64,6 +66,19 @@ export function VeridaProvider(props: VeridaProviderProps) {
     } catch (_error) {
       // Only error is if user not connected which is prevented by above check
       setDid(null)
+    }
+
+    //getPublicProfile
+    try {
+      const newProfile = await webUserInstance.getPublicProfile(true)
+      setProfile(newProfile)
+    } catch (error: unknown) {
+      if (
+        error instanceof Error &&
+        error.message !== "Not connected to Verida Network"
+      ) {
+        setProfile(undefined)
+      }
     }
   }, [])
 
@@ -101,6 +116,7 @@ export function VeridaProvider(props: VeridaProviderProps) {
   useEffect(() => {
     console.info("Initialising the Verida client")
     webUserInstance.addListener("connected", connectionEventListener)
+    // webUserInstance.addListener("profileChanged", veridaEventListener)
     webUserInstance.addListener("disconnected", connectionEventListener)
 
     void autoConnect()
@@ -182,6 +198,7 @@ export function VeridaProvider(props: VeridaProviderProps) {
       disconnect,
       getAccountSessionToken,
       openDatastore,
+      profile,
       webUserInstanceRef,
     }),
     [
@@ -193,6 +210,7 @@ export function VeridaProvider(props: VeridaProviderProps) {
       disconnect,
       getAccountSessionToken,
       openDatastore,
+      profile,
       webUserInstanceRef,
     ]
   )
