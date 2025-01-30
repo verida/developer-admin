@@ -6,15 +6,22 @@ import { useEffect, useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { getAccount, registerAccount } from "@/features/dcs/api"
-import type { BillingAccount } from "@/features/dcs/interfaces"
-import { tokensToNumber } from "@/features/dcs/utils"
+import {
+  accountUsage,
+  connectedAccountCount,
+  getAccount,
+  registerAccount,
+} from "@/features/dcs/api"
+import type { BillingAccount, UsageStats } from "@/features/dcs/interfaces"
+import { accountCredits } from "@/features/dcs/utils"
 import { useVerida } from "@/features/verida/hooks/use-verida"
 
 // webUserInstanceRef
 export default function DashboardPage() {
   const { did, profile, getAccountSessionToken } = useVerida()
   const [account, setAccount] = useState<BillingAccount | null>(null)
+  const [credits, setCredits] = useState<number | null>(null)
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
 
   // const imgSrc = `data:image/png;base64,${profile?.avatarUri}`
 
@@ -24,23 +31,25 @@ export default function DashboardPage() {
     const newAccount = await registerAccount(sessionToken)
 
     if (newAccount) {
-      setAccount(newAccount)
+      loadAccount()
     }
   }
 
   // A function that does something on mount
-  async function onDashboardLoad() {
+  async function loadAccount() {
     const sessionToken = await getAccountSessionToken()
     const account = await getAccount(sessionToken)
 
     if (account) {
       setAccount(account)
+      setCredits(await accountCredits(sessionToken, account))
+      setUsageStats(await accountUsage(sessionToken))
     }
   }
 
   // Run the function once, when the component mounts
   useEffect(() => {
-    onDashboardLoad()
+    loadAccount()
   }, [])
 
   return (
@@ -73,13 +82,33 @@ export default function DashboardPage() {
       )}
       {account && (
         <div>
-          <p className="mt-4">
-            You have {tokensToNumber(account.tokens.free)} free credits and{" "}
-            {tokensToNumber(account.tokens.owned)} paid credits.
-          </p>
-          <p className="mt-4">
-            <Link href="/credits">Manage credits</Link>
-          </p>
+          <div>
+            {credits && (
+              <p className="mt-4">
+                You currently have{" "}
+                <Link href="/credits">
+                  <u>
+                    <strong>{credits}</strong> credits
+                  </u>
+                  .
+                </Link>
+              </p>
+            )}
+          </div>
+          <div>
+            {usageStats && (
+              <div>
+                <p className="mt-4">
+                  <strong>{usageStats.connectedAccounts}</strong> accounts have
+                  connected to your application.
+                </p>
+                <p className="mt-4">
+                  <strong>{usageStats.requests}</strong> API requests have been
+                  served.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

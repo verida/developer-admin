@@ -14,3 +14,9 @@ export interface BillingTokens {
   free: string
   owned: string
 }
+
+export interface UsageStats {
+  connectedAccounts: number
+  requests: number
+  resultSize: number
+}
