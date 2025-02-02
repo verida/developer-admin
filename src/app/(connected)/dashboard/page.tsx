@@ -6,12 +6,7 @@ import { useEffect, useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import {
-  accountUsage,
-  connectedAccountCount,
-  getAccount,
-  registerAccount,
-} from "@/features/dcs/api"
+import { accountUsage, getAccount, registerAccount } from "@/features/dcs/api"
 import type { BillingAccount, UsageStats } from "@/features/dcs/interfaces"
 import { accountCredits } from "@/features/dcs/utils"
 import { useVerida } from "@/features/verida/hooks/use-verida"

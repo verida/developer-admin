@@ -4,6 +4,7 @@ import { z } from "zod"
 export const CommonConfigSchema = z.object({
   BASE_URL: z.string().url(),
   DCS_URL: z.string().url(),
+  VAULT_AUTH_ENDPOINT: z.string().url(),
   DEV_MODE: z
     .string()
     .optional()

@@ -1,6 +1,6 @@
 import { commonConfig } from "@/config/common"
 
-import type { BillingAccount, UsageStats } from "./interfaces"
+import type { BillingAccount, Scope, ScopesResponse, UsageStats } from "./interfaces"
 import type { IAccount } from "@verida/types"
 
 const BASE_API = `${commonConfig.DCS_URL}/api/rest/v1`
@@ -128,3 +128,23 @@ export async function accountUsage(sessionToken: string): Promise<UsageStats> {
     const json = await response.json()
     return <UsageStats> json.usage
 }
+
+export async function fetchScopes(): Promise<Record<string, Scope>> {
+    const response = await fetch(`${BASE_API}/auth/scopes`)
+    if (!response.ok) {
+    throw new Error("Failed to fetch scopes")
+    }
+
+    const scopeResponse = <ScopesResponse> await response.json()
+    return scopeResponse.scopes
+}
+
+export async function fetchTokenData(authToken: string): Promise<any> {
+    const response = await fetch(`${BASE_API}/auth/token?tokenId=${encodeURIComponent(authToken)}`)
+    if (!response.ok) {
+        throw new Error("Failed to fetch token data")
+    }
+
+    const result = await response.json()
+    return result
+  }

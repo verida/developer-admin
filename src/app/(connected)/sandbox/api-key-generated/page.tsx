@@ -1,0 +1,63 @@
+"use client"
+
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { fetchTokenData } from "@/features/dcs/api"
+
+export default function ApiKeyGeneratedPage() {
+  const searchParams = useSearchParams()
+  const [apiKey, setApiKey] = useState<string>("")
+  const [apiKeySaved, setApiKeySaved] = useState<boolean>(false)
+  const [tokenData, setTokenData] = useState<object>({})
+
+  async function onLoad() {
+    // Get the "auth_token" parameter
+    const key = searchParams.get("auth_token")
+    if (key) {
+      setApiKey(key)
+      const result = await fetchTokenData(key)
+      setTokenData(result)
+
+      if (!localStorage.getItem("authToken")) {
+        localStorage.setItem("authToken", key)
+        setApiKeySaved(true)
+      }
+    }
+  }
+
+  useEffect(() => {
+    onLoad()
+  }, [])
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">API Key Generated</h1>
+      <div>
+        <p>
+          Congratulations! You have successfully created a Verida API key. You
+          can now use it to{" "}
+          <Link href="/sandbox/browse-data">Browse your data</Link> or{" "}
+          <Link href="/sandbox/api-requests">Make API requests</Link>.
+        </p>
+
+        <pre className="mt-4">{apiKey}</pre>
+        {apiKeySaved && (
+          <Alert variant="default" className="mb-3">
+            <AlertTitle>Key saved</AlertTitle>
+            <AlertDescription>
+              This API key has been saved to local storage so you can use easily
+              it with the sandbox
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+      <div>
+        <h2 className="text-xl font-bold">Token Data</h2>
+        <pre className="mt-4">{JSON.stringify(tokenData, null, 2)}</pre>
+      </div>
+    </div>
+  )
+}

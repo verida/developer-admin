@@ -20,3 +20,19 @@ export interface UsageStats {
   requests: number
   resultSize: number
 }
+
+export enum ScopeType {
+  DATASTORE = "ds",
+  DATABASE = "db",
+  API = "api",
+}
+
+export interface Scope {
+  type: ScopeType
+  description: string
+  userNote?: string
+}
+
+export interface ScopesResponse {
+  scopes: Record<string, Scope>
+}
