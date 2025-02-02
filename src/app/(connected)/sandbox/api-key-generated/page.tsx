@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { fetchTokenData } from "@/features/dcs/api"
 
 export default function ApiKeyGeneratedPage() {
@@ -12,6 +13,10 @@ export default function ApiKeyGeneratedPage() {
   const [apiKey, setApiKey] = useState<string>("")
   const [apiKeySaved, setApiKeySaved] = useState<boolean>(false)
   const [tokenData, setTokenData] = useState<object>({})
+
+  function saveApiKey() {
+    localStorage.setItem("authToken", apiKey)
+  }
 
   async function onLoad() {
     // Get the "auth_token" parameter
@@ -22,7 +27,7 @@ export default function ApiKeyGeneratedPage() {
       setTokenData(result)
 
       if (!localStorage.getItem("authToken")) {
-        localStorage.setItem("authToken", key)
+        saveApiKey()
         setApiKeySaved(true)
       }
     }
@@ -52,6 +57,11 @@ export default function ApiKeyGeneratedPage() {
               it with the sandbox
             </AlertDescription>
           </Alert>
+        )}
+        {apiKey && !apiKeySaved && (
+          <Button variant="default" onClick={saveApiKey}>
+            Save API Key
+          </Button>
         )}
       </div>
       <div>
