@@ -27,7 +27,7 @@ const DEFAULT_SCOPES = [
 const AUTH_ENDPOINT = commonConfig.VAULT_AUTH_ENDPOINT
 
 // This app
-const RETURN_URL = `${commonConfig.BASE_URL}/sandbox/api-key-generated`
+const RETURN_URL = `${commonConfig.BASE_URL}/sandbox/token-generated`
 
 export default function GenerateApiKeyPage() {
   // Fetched scope definitions
