@@ -16,46 +16,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { apiEndpoints } from "@/config/apiEndpoints"
 import { commonConfig } from "@/config/common"
 
 // Example "apiEndpoints" object from endpoints.js
 // (truncated for brevity—include all endpoints as needed)
-const BASE_API = `${commonConfig.DCS_URL}/api/rest/v1`
-const apiEndpoints = {
-  "/ds/query/{schemaUrl}": {
-    method: "POST",
-    path: `${BASE_API}/ds/query/{schemaUrl}`,
-    documentation: "Query a datastore",
-    urlVariables: {
-      schemaUrl: {
-        type: "string",
-        required: true,
-        documentation: "Base64-encoded datastore schema URL.",
-        preProcessing: (value: string) => btoa(value),
-        default:
-          "https://common.schemas.verida.io/social/chat/group/v0.1.0/schema.json",
-      },
-    },
-    params: {
-      query: {
-        type: "object",
-        required: false,
-        documentation: "A pouchdb-style filter in JSON format.",
-        default: `{}`,
-      },
-      options: {
-        type: "object",
-        required: false,
-        documentation: "Sort, limit, skip, etc. in JSON format.",
-        default: `{
-  "sort": [{ "_id": "desc" }],
-  "limit": 20
-}`,
-      },
-    },
-  },
-  // ... Add more endpoints from your `endpoints.js` ...
-}
+const BASE_API = commonConfig.DCS_URL
 
 type EndpointKey = keyof typeof apiEndpoints
 
@@ -71,7 +37,7 @@ export default function ApiRequestsPage() {
 
   // -- Selected Endpoint & Base URL --
   const [endpoint, setEndpoint] = useState<EndpointKey>("/ds/query/{schemaUrl}")
-  const [baseUrl, setBaseUrl] = useState<string>("")
+  const [baseUrl, setBaseUrl] = useState<string>(BASE_API)
 
   // -- Private Key Visibility --
   const [showPrivateKey, setShowPrivateKey] = useState<boolean>(false)
@@ -96,7 +62,7 @@ export default function ApiRequestsPage() {
 
   // Initialize form fields when endpoint changes
   useEffect(() => {
-    const config = apiEndpoints[endpoint]
+    const config = apiEndpoints[endpoint]!
 
     // Initialize urlVariables
     if (config.urlVariables) {
@@ -127,7 +93,7 @@ export default function ApiRequestsPage() {
 
   // Build code examples for each language
   function buildCodeExamples() {
-    const config = apiEndpoints[endpoint]
+    const config = apiEndpoints[endpoint]!
     const method = config.method
     let builtUrl = (baseUrl || "") + config.path
 
@@ -279,7 +245,7 @@ print(response.json())`
     try {
       setResult("Request sent... waiting...")
 
-      const config = apiEndpoints[endpoint]
+      const config = apiEndpoints[endpoint]!
       let builtUrl = (baseUrl || "") + config.path
       const method = config.method
 
@@ -352,7 +318,7 @@ print(response.json())`
 
   // Render dynamic fields for urlVariables
   function renderUrlVariableFields() {
-    const config = apiEndpoints[endpoint]
+    const config = apiEndpoints[endpoint]!
     if (!config.urlVariables) return null
 
     return Object.entries(config.urlVariables).map(([varName, varObj]) => (
@@ -378,7 +344,7 @@ print(response.json())`
 
   // Render dynamic fields for params
   function renderParamsFields() {
-    const config = apiEndpoints[endpoint]
+    const config = apiEndpoints[endpoint]!
     if (!config.params) return null
 
     return Object.entries(config.params).map(([paramName, paramObj]) => {
@@ -458,17 +424,17 @@ print(response.json())`
 
           {/* Base URL Input (optional) */}
           <div className="space-y-1">
-            <Label htmlFor="baseUrl">Base URL (optional)</Label>
+            <Label htmlFor="baseUrl">API Server URL Endpoint</Label>
             <Input
               id="baseUrl"
-              value={baseUrl}
+              value={baseUrl || ""}
               onChange={(e) => setBaseUrl(e.target.value)}
               placeholder="https://your.custom.server"
             />
           </div>
 
           {/* URL Variables */}
-          {Object.entries(apiEndpoints[endpoint].urlVariables || {}).length >
+          {Object.entries(apiEndpoints[endpoint]!.urlVariables || {}).length >
             0 && (
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">URL Variables</h3>
@@ -477,7 +443,7 @@ print(response.json())`
           )}
 
           {/* Params */}
-          {Object.entries(apiEndpoints[endpoint].params || {}).length > 0 && (
+          {Object.entries(apiEndpoints[endpoint]!.params || {}).length > 0 && (
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Parameters</h3>
               {renderParamsFields()}
