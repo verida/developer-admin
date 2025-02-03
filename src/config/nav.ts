@@ -19,8 +19,12 @@ export const navItems: NavItem[] = [
     href: "/sandbox",
     items: [
       {
-        title: "Generate API Key",
-        href: "/sandbox/generate-api-key",
+        title: "Generate Token",
+        href: "/sandbox/generate-token",
+      },
+      {
+        title: "Token Info",
+        href: "/sandbox/token-info",
       },
       {
         title: "API Requests",
