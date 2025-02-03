@@ -314,83 +314,6 @@ Each result contains the chat group and an array of messages.`,
       },
     },
   },
-  "/providers": {
-    method: "GET",
-    path: `${apiPrefix}/providers`,
-    documentation: "Retrieves a list of available providers.",
-  },
-  "/sync": {
-    method: "GET",
-    path: `${apiPrefix}/sync`,
-    documentation: "Start syncing data for a given provider",
-    params: {
-      provider: commonParams.provider!,
-      providerId: commonParams.providerId!,
-      force: {
-        type: "boolean",
-        required: false,
-        documentation:
-          "Force the sync to occur, ignoring the current status of the connection.",
-      },
-    },
-  },
-  "/sync/status": {
-    method: "GET",
-    path: `${apiPrefix}/sync/status`,
-    documentation: `Get the status of the current sync connection for a provider.`,
-  },
-  "/sync/logs": {
-    method: "GET",
-    path: `${apiPrefix}/sync/logs`,
-    documentation: `Live stream of the sync logs.
-
-This is not a typical HTTP request, it uses EventSource to stream the loading progress.
-
-**Example code:**
-
-\`\`\`
-const eventSource = new EventSource(\`${apiPrefix}/llm/hotload?key=<key>\`);
-    
-eventSource.onmessage = function(event) {
-    console.log(event)
-}
-\`\`\`
-`,
-  },
-  "/admin/memory": {
-    method: "GET",
-    path: `${apiPrefix}/admin/memory`,
-    documentation: `Memory usage of the server.
-
-**rss (Resident Set Size):** This represents the total memory allocated for the process, including code, stack, and heap. It is the overall memory usage by the server (in bytes), which includes all allocations by the operating system, not just the memory allocated by the JavaScript engine (V8).
-
-**heapTotal:** This is the total size of the heap that V8 (the JavaScript engine) has reserved for the server. It indicates the amount of memory allocated for the JavaScript objects and functions that your application may use.
-
-**heapUsed:** This represents the actual memory used by JavaScript objects and functions within the total allocated heap (heapTotal). It shows how much of the heap is currently occupied by active data.
-
-**external:** This refers to the memory used by C++ objects bound to JavaScript objects. It is memory outside of V8's JavaScript heap but managed by native code and typically allocated for objects that V8 doesn’t directly manage.
-
-**arrayBuffers:** This is the memory allocated for ArrayBuffer and SharedArrayBuffer instances in JavaScript. It indicates how much memory is consumed specifically by array buffer-backed objects.
-`,
-  },
-  "/llm/hotload": {
-    method: "GET",
-    path: `${apiPrefix}/llm/hotload`,
-    documentation: `Hot load into memory all the data necessary for fast presonal LLM requests.
-
-This is not a typical HTTP request, it uses EventSource to stream the loading progress.
-
-**Example code:**
-
-\`\`\`
-const eventSource = new EventSource(\`${apiPrefix}/llm/hotload?key=<key>\`);
-    
-eventSource.onmessage = function(event) {
-    console.log(event)
-}
-\`\`\`
-`,
-  },
   "/llm/prompt": {
     method: "POST",
     path: `${apiPrefix}/llm/prompt`,
@@ -403,10 +326,10 @@ eventSource.onmessage = function(event) {
       },
     },
   },
-  "/llm/personal": {
+  "/llm/agent": {
     method: "POST",
-    path: `${apiPrefix}/llm/personal`,
-    documentation: `Send a LLM prompt request to the built-in personal AI LLM.`,
+    path: `${apiPrefix}/llm/agent`,
+    documentation: `Send a LLM prompt request to the built-in personal AI Agent.`,
     params: {
       prompt: {
         type: "string",
