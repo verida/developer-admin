@@ -4853,10 +4853,10 @@ punycode@^2.1.0, punycode@^2.1.1, punycode@^2.3.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.3.1.tgz#027422e2faec0b25e1549c3e1bd8309b9133b6e5"
   integrity sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==
 
-qrcode-with-logos@^1.0.3:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/qrcode-with-logos/-/qrcode-with-logos-1.1.1.tgz#87b04fb2606b81391c94b60cd600c9c81fb1adec"
-  integrity sha512-vh0LWvwalp7471ODXd4rcXrbKgRpfwfdrjfb3pdr9+Zz/s27+5clRHFxzh5orTm1rusStfHGMACP7GWVAkzpKQ==
+qrcode-with-logos@1.0.3, qrcode-with-logos@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/qrcode-with-logos/-/qrcode-with-logos-1.0.3.tgz#f40a99759aa3357572e7d1434523eecdafd64029"
+  integrity sha512-I0LkEyHsWpzObpvbj4jc93rj/+57DdshAd3c7xzh9Gms6bJ5A30ApFY0ZCHOVlF4Bqm2d9kFUV9oFCBkHORqOg==
   dependencies:
     qrcode "^1.4.4"
 
