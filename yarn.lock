@@ -4943,10 +4943,10 @@ normalize-range@^0.1.2:
   resolved "https://registry.yarnpkg.com/normalize-range/-/normalize-range-0.1.2.tgz#2d10c06bdfd312ea9777695a4d28439456b75942"
   integrity sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==
 
-nuqs@^2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/nuqs/-/nuqs-2.3.1.tgz#199e4027b43780e13174f470c91d7feda5b77266"
-  integrity sha512-IyzSay4UlaBj+KnPBFjoJKilEmX5XLePfwC+X5wJS87dMFf8tvxysIaBwma6eupQJ5mdu35f4gFzp9+v1CK/jQ==
+nuqs@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/nuqs/-/nuqs-2.3.2.tgz#0a38ff772f20cadf48caac486527ffad5ca99c7e"
+  integrity sha512-WeG78r8e3a30JY3P8npldvNiAZwGIk499lnpeRs3UYA3PpSvs2/PLunKGgjuF/JMw4BOowD3K2xgGEOZ3PeODA==
   dependencies:
     mitt "^3.0.1"
 
