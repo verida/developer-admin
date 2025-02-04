@@ -1,11 +1,20 @@
 "use client"
 
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@radix-ui/react-dialog"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
+import ReactMarkdown from "react-markdown"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { DialogHeader } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -18,6 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { apiEndpoints } from "@/config/apiEndpoints"
 import { commonConfig } from "@/config/common"
+import { SCHEMA_MAP } from "@/features/dcs/schemas"
 
 // Example "apiEndpoints" object from endpoints.js
 // (truncated for brevity—include all endpoints as needed)
@@ -53,6 +63,9 @@ export default function ApiRequestsPage() {
   const [result, setResult] = useState<string>("")
   const [resultErrorMessage, setResultErrorMessage] = useState<string>("")
   const [resultError, setResultError] = useState<string>("")
+
+  const [isSchemaListOpen, setIsSchemaListOpen] = useState<boolean>(false)
+  const [schemaUrl, setSchemaUrl] = useState<string>("")
 
   // On mount, load the veridaKey from localStorage
   useEffect(() => {
@@ -329,15 +342,50 @@ print(response.json())`
         </Label>
         <Input
           id={`urlVar-${varName}`}
-          value={urlVariables[varName] ?? ""}
+          value={
+            varName == "schemaUrl" && schemaUrl
+              ? schemaUrl
+              : (urlVariables[varName] ?? "")
+          }
           onChange={(e) =>
             setUrlVariables((prev) => ({
               ...prev,
               [varName]: e.target.value,
             }))
           }
-          placeholder={varObj.documentation || varName}
         />
+        <div className="text-sm text-gray-600">
+          <ReactMarkdown>{varObj.documentation}</ReactMarkdown>
+        </div>
+        {varName == "schemaUrl" && (
+          <Dialog open={isSchemaListOpen} onOpenChange={setIsSchemaListOpen}>
+            <DialogTrigger asChild>
+              <Button variant="link" className="ml-2">
+                List available schemas
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Schemas</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2">
+                {Object.entries(SCHEMA_MAP).map(([name, url]) => (
+                  <div key={name}>
+                    <Button
+                      variant="link"
+                      onClick={() => {
+                        setSchemaUrl(url)
+                        setIsSchemaListOpen(false)
+                      }}
+                    >
+                      {name}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     ))
   }
@@ -367,7 +415,6 @@ print(response.json())`
                 }))
               }
               rows={5}
-              placeholder={paramObj.documentation || paramName}
             />
           ) : (
             <Input
@@ -382,6 +429,9 @@ print(response.json())`
               placeholder={paramObj.documentation || paramName}
             />
           )}
+          <div className="text-sm text-gray-600">
+            <ReactMarkdown>{paramObj.documentation}</ReactMarkdown>
+          </div>
         </div>
       )
     })
@@ -398,6 +448,10 @@ print(response.json())`
         </CardHeader>
         <CardContent className="space-y-4">
           <p>Use this interface to easily generate API queries on your data.</p>
+          <p>
+            API queries are using the token saved at the
+            <Link href="/sandbox/token-info">Token Info</Link> page
+          </p>
 
           {/* Endpoint Selector */}
           <div className="space-y-1">
