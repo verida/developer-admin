@@ -31,6 +31,7 @@ export interface Scope {
   type: ScopeType
   description: string
   userNote?: string
+  credits?: number
 }
 
 export interface ScopesResponse {

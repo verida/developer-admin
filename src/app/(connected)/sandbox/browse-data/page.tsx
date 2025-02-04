@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 
@@ -26,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { commonConfig } from "@/config/common"
+import { SCHEMA_MAP } from "@/features/dcs/schemas"
 
 interface ApiItem {
   [key: string]: any
@@ -39,24 +41,6 @@ interface QueryResponse {
 }
 
 const BASE_API = `${commonConfig.DCS_URL}/api/rest/v1`
-
-// Example schemas from data.js
-const SCHEMA_MAP: Record<string, string> = {
-  "Social Following":
-    "https://common.schemas.verida.io/social/following/v0.1.0/schema.json",
-  "Social Post":
-    "https://common.schemas.verida.io/social/post/v0.1.0/schema.json",
-  "Favourites": "https://common.schemas.verida.io/favourite/v0.1.0/schema.json",
-  "Email": "https://common.schemas.verida.io/social/email/v0.1.0/schema.json",
-  "Chat Group":
-    "https://common.schemas.verida.io/social/chat/group/v0.1.0/schema.json",
-  "Chat Message":
-    "https://common.schemas.verida.io/social/chat/message/v0.1.0/schema.json",
-  "Files": "https://common.schemas.verida.io/file/v0.1.0/schema.json",
-  "Calendar":
-    "https://common.schemas.verida.io/social/calendar/v0.1.0/schema.json",
-  "Event": "https://common.schemas.verida.io/social/event/v0.1.0/schema.json",
-}
 
 export default function BrowseDataPage() {
   const router = useRouter()
@@ -296,6 +280,14 @@ export default function BrowseDataPage() {
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           )}
+
+          <p>
+            Use this interface to browse the data connected via your API key.
+          </p>
+          <p>
+            API queries are using the token saved at the
+            <Link href="/sandbox/token-info">Token Info</Link> page
+          </p>
 
           {/* Query Form */}
           <div className="space-y-4">

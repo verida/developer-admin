@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react"
 
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-// shadcn/ui components (adjust import paths to match your setup)
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -18,10 +17,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+// Example API fetcher (replace with your actual API logic)
 import { fetchTokenData } from "@/features/dcs/api"
 
-// Helper to mask token (first 6, then "....", then last 6)
+// Helper to mask token (first 8, then "..............", then last 8)
 function maskToken(token: string) {
+  // If shorter than 16, just show all
+  if (token.length < 16) return token
   const start = token.slice(0, 8)
   const end = token.slice(-8)
   return `${start}..............${end}`
@@ -32,16 +34,20 @@ export default function TokenInfoPage() {
   const [tokenInfo, setTokenInfo] = useState<any>(null)
   const [error, setError] = useState<string>("")
 
-  // Manage dialog open state for "Load token"
+  // State for "Load token" dialog
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
-  const [newToken, setNewToken] = useState<string>("") // For the dialog input
+  const [newToken, setNewToken] = useState<string>("")
 
-  // On page load, read from localStorage
+  // State for "View current token" dialog
+  const [viewDialogOpen, setViewDialogOpen] = useState<boolean>(false)
+  const [viewToken, setViewToken] = useState<string>("")
+
+  // On page load, read token from localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem("authToken")
     if (storedToken) {
       setToken(storedToken)
-      // Auto-fetch info once loaded
+      // Auto-fetch info
       handleFetchTokenInfo(storedToken)
     }
   }, [])
@@ -65,27 +71,28 @@ export default function TokenInfoPage() {
     }
   }
 
-  // Handle "Load" inside the modal
+  // Load (save) new token from the "Load token" dialog
   function handleLoadToken() {
-    // Save new token to localStorage
     localStorage.setItem("authToken", newToken)
     setToken(newToken)
-
-    // Close dialog
     setDialogOpen(false)
-
-    // Fetch token info right away
     handleFetchTokenInfo(newToken)
   }
 
-  // View the current token from local storage
+  // View the current token in a dialog
   function handleViewCurrentToken() {
     const storedToken = localStorage.getItem("authToken")
     if (storedToken) {
-      alert(`Current token in local storage:\n\n${storedToken}`)
+      setViewToken(storedToken)
+      setViewDialogOpen(true)
     } else {
-      alert("No token found in local storage.")
+      setError("No token found in local storage.")
     }
+  }
+
+  // Copy token to clipboard
+  function handleCopyToken() {
+    navigator.clipboard.writeText(viewToken).then(() => {})
   }
 
   return (
@@ -96,7 +103,6 @@ export default function TokenInfoPage() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* Masked token display (read-only). Show if we have a token in state */}
           {token ? (
             <div className="space-y-2">
               <Label>Current token</Label>
@@ -107,7 +113,7 @@ export default function TokenInfoPage() {
           )}
 
           <div className="flex flex-wrap gap-2">
-            {/* Load token (opens dialog) */}
+            {/* Load token dialog */}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="default">Load token</Button>
@@ -145,10 +151,39 @@ export default function TokenInfoPage() {
             {/* Manually re-fetch token info */}
             <Button onClick={() => handleFetchTokenInfo()}>Fetch</Button>
 
-            {/* View the full stored token in an alert */}
+            {/* View current token dialog */}
             <Button variant="outline" onClick={handleViewCurrentToken}>
               View current token
             </Button>
+            <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Current Token</DialogTitle>
+                  <DialogDescription>
+                    Below is your full token from local storage.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-2">
+                  <Label>Token (full)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input value={viewToken} readOnly className="flex-1" />
+                    <Button variant="secondary" onClick={handleCopyToken}>
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    variant="default"
+                    onClick={() => setViewDialogOpen(false)}
+                  >
+                    Close
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Error or token info display */}
