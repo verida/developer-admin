@@ -47,11 +47,11 @@ export default function ApiKeyGeneratedPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">API Key Generated</h1>
+      <h1 className="text-2xl font-bold">Auth Token Generated</h1>
       <div>
         <p>
-          Congratulations! You have successfully created a Verida API key. You
-          can now use it to{" "}
+          Congratulations! You have successfully created a Verida Auth Token.
+          You can now use it to{" "}
           <Link href="/sandbox/browse-data">Browse your data</Link> or{" "}
           <Link href="/sandbox/api-requests">Make API requests</Link>.
         </p>
@@ -61,14 +61,14 @@ export default function ApiKeyGeneratedPage() {
           <Alert variant="default" className="mb-3">
             <AlertTitle>Key saved</AlertTitle>
             <AlertDescription>
-              This API key has been saved to local storage so you can use easily
-              it with the sandbox
+              This Auth Token has been saved to local storage so you can use
+              easily it with the sandbox
             </AlertDescription>
           </Alert>
         )}
         {apiKey && !apiKeySaved && (
           <Button variant="default" onClick={() => saveApiKey(undefined)}>
-            Save API Key
+            Save Auth Token
           </Button>
         )}
       </div>
