@@ -376,6 +376,10 @@ print(response.json())`
                       onClick={() => {
                         setSchemaUrl(url)
                         setIsSchemaListOpen(false)
+                        setUrlVariables((prev) => ({
+                          ...prev,
+                          ["schemaUrl"]: url,
+                        }))
                       }}
                     >
                       {name}
