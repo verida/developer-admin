@@ -8,14 +8,22 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { fetchTokenData } from "@/features/dcs/api"
 
+function maskToken(token: string) {
+  // If shorter than 16, just show all
+  if (token.length < 16) return token
+  const start = token.slice(0, 8)
+  const end = token.slice(-8)
+  return `${start}..............${end}`
+}
+
 export default function ApiKeyGeneratedPage() {
   const searchParams = useSearchParams()
   const [apiKey, setApiKey] = useState<string>("")
   const [apiKeySaved, setApiKeySaved] = useState<boolean>(false)
   const [tokenData, setTokenData] = useState<object>({})
 
-  function saveApiKey() {
-    localStorage.setItem("authToken", apiKey)
+  function saveApiKey(key?: string) {
+    localStorage.setItem("authToken", key || apiKey)
   }
 
   async function onLoad() {
@@ -27,7 +35,7 @@ export default function ApiKeyGeneratedPage() {
       setTokenData(result)
 
       if (!localStorage.getItem("authToken")) {
-        saveApiKey()
+        saveApiKey(key)
         setApiKeySaved(true)
       }
     }
@@ -48,7 +56,7 @@ export default function ApiKeyGeneratedPage() {
           <Link href="/sandbox/api-requests">Make API requests</Link>.
         </p>
 
-        <pre className="mt-4">{apiKey}</pre>
+        <pre className="mt-4">{maskToken(apiKey)}</pre>
         {apiKeySaved && (
           <Alert variant="default" className="mb-3">
             <AlertTitle>Key saved</AlertTitle>
@@ -59,7 +67,7 @@ export default function ApiKeyGeneratedPage() {
           </Alert>
         )}
         {apiKey && !apiKeySaved && (
-          <Button variant="default" onClick={saveApiKey}>
+          <Button variant="default" onClick={() => saveApiKey(undefined)}>
             Save API Key
           </Button>
         )}

@@ -79,6 +79,11 @@ export default function TokenInfoPage() {
     handleFetchTokenInfo(newToken)
   }
 
+  function handleClearToken() {
+    localStorage.removeItem("authToken")
+    setToken("")
+  }
+
   // View the current token in a dialog
   function handleViewCurrentToken() {
     const storedToken = localStorage.getItem("authToken")
@@ -148,42 +153,48 @@ export default function TokenInfoPage() {
               </DialogContent>
             </Dialog>
 
-            {/* Manually re-fetch token info */}
-            <Button onClick={() => handleFetchTokenInfo()}>Fetch</Button>
+            {token && (
+              <div>
+                {/* View current token dialog */}
+                <Button variant="outline" onClick={handleViewCurrentToken}>
+                  View current token
+                </Button>
+                <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Current Token</DialogTitle>
+                      <DialogDescription>
+                        Below is your full token from local storage.
+                      </DialogDescription>
+                    </DialogHeader>
 
-            {/* View current token dialog */}
-            <Button variant="outline" onClick={handleViewCurrentToken}>
-              View current token
-            </Button>
-            <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Current Token</DialogTitle>
-                  <DialogDescription>
-                    Below is your full token from local storage.
-                  </DialogDescription>
-                </DialogHeader>
+                    <div className="space-y-2">
+                      <Label>Token (full)</Label>
+                      <div className="flex items-center gap-2">
+                        <Input value={viewToken} readOnly className="flex-1" />
+                        <Button variant="secondary" onClick={handleCopyToken}>
+                          Copy
+                        </Button>
+                      </div>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label>Token (full)</Label>
-                  <div className="flex items-center gap-2">
-                    <Input value={viewToken} readOnly className="flex-1" />
-                    <Button variant="secondary" onClick={handleCopyToken}>
-                      Copy
-                    </Button>
-                  </div>
-                </div>
+                    <DialogFooter>
+                      <Button
+                        variant="default"
+                        onClick={() => setViewDialogOpen(false)}
+                      >
+                        Close
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
 
-                <DialogFooter>
-                  <Button
-                    variant="default"
-                    onClick={() => setViewDialogOpen(false)}
-                  >
-                    Close
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                {/* Manually re-fetch token info */}
+                <Button variant="outline" onClick={() => handleClearToken()}>
+                  Clear Token
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Error or token info display */}
