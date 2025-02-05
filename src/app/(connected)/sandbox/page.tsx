@@ -7,7 +7,7 @@ export default function SandboxIndexPage() {
       <p className="mt-4">Welcome to the Developer Sandbox.</p>
       <p className="mt-4">
         You can easily obtain an API key to browse your data or use the Verida
-        API's directly within your browser to explore how they work.
+        API&apos;s directly within your browser to explore how they work.
       </p>
     </div>
   )
