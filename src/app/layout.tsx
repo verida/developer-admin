@@ -12,7 +12,7 @@ const baseUrl = new URL(commonConfig.BASE_URL)
 export const metadata: Metadata = {
   title: {
     default: APP_TITLE,
-    template: `%s | ${APP_TITLE}`,
+    template: APP_TITLE,
   },
   description: APP_DESCRIPTION,
   applicationName: APP_NAME,

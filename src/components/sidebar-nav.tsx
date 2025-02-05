@@ -3,8 +3,10 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
+import { Button } from "@/components/ui/button"
 import { navItems } from "@/config/nav"
 import type { NavItem } from "@/config/nav"
+import { useVerida } from "@/features/verida/hooks/use-verida"
 import { cn } from "@/styles/utils"
 
 // If you have a classNames utility
@@ -30,25 +32,32 @@ function SidebarLink({ item }: { item: NavItem }) {
 }
 
 export function SidebarNav() {
-  return (
-    <nav className="space-y-1">
-      {navItems.map((item) => {
-        // If the item has nested items (e.g. Sandbox), we can render those as well:
-        if (item.items?.length) {
-          return (
-            <div key={item.title}>
-              <SidebarLink item={{ title: item.title, href: item.href }} />
-              <div className="ml-4 mt-1 space-y-1">
-                {item.items.map((subItem) => (
-                  <SidebarLink key={subItem.title} item={subItem} />
-                ))}
-              </div>
-            </div>
-          )
-        }
+  const { disconnect } = useVerida()
 
-        return <SidebarLink key={item.title} item={item} />
-      })}
+  return (
+    <nav className="flex h-full flex-col justify-between">
+      <div className="space-y-1">
+        {navItems.map((item) => {
+          // If the item has nested items (e.g. Sandbox), we can render those as well:
+          if (item.items?.length) {
+            return (
+              <div key={item.title}>
+                <SidebarLink item={{ title: item.title, href: item.href }} />
+                <div className="ml-4 mt-1 space-y-1">
+                  {item.items.map((subItem) => (
+                    <SidebarLink key={subItem.title} item={subItem} />
+                  ))}
+                </div>
+              </div>
+            )
+          }
+
+          return <SidebarLink key={item.title} item={item} />
+        })}
+      </div>
+      <Button onClick={disconnect} variant="secondary" className="w-full">
+        Disconnect
+      </Button>
     </nav>
   )
 }

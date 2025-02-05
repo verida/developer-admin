@@ -8,14 +8,22 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { fetchTokenData } from "@/features/dcs/api"
 
+function maskToken(token: string) {
+  // If shorter than 16, just show all
+  if (token.length < 16) return token
+  const start = token.slice(0, 8)
+  const end = token.slice(-8)
+  return `${start}..............${end}`
+}
+
 export default function ApiKeyGeneratedPage() {
   const searchParams = useSearchParams()
   const [apiKey, setApiKey] = useState<string>("")
   const [apiKeySaved, setApiKeySaved] = useState<boolean>(false)
   const [tokenData, setTokenData] = useState<object>({})
 
-  function saveApiKey() {
-    localStorage.setItem("authToken", apiKey)
+  function saveApiKey(key?: string) {
+    localStorage.setItem("authToken", key || apiKey)
   }
 
   async function onLoad() {
@@ -27,7 +35,7 @@ export default function ApiKeyGeneratedPage() {
       setTokenData(result)
 
       if (!localStorage.getItem("authToken")) {
-        saveApiKey()
+        saveApiKey(key)
         setApiKeySaved(true)
       }
     }
@@ -39,28 +47,28 @@ export default function ApiKeyGeneratedPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">API Key Generated</h1>
+      <h1 className="text-2xl font-bold">Auth Token Generated</h1>
       <div>
         <p>
-          Congratulations! You have successfully created a Verida API key. You
-          can now use it to{" "}
+          Congratulations! You have successfully created a Verida Auth Token.
+          You can now use it to{" "}
           <Link href="/sandbox/browse-data">Browse your data</Link> or{" "}
           <Link href="/sandbox/api-requests">Make API requests</Link>.
         </p>
 
-        <pre className="mt-4">{apiKey}</pre>
+        <pre className="mt-4">{maskToken(apiKey)}</pre>
         {apiKeySaved && (
           <Alert variant="default" className="mb-3">
             <AlertTitle>Key saved</AlertTitle>
             <AlertDescription>
-              This API key has been saved to local storage so you can use easily
-              it with the sandbox
+              This Auth Token has been saved to local storage so you can use
+              easily it with the sandbox
             </AlertDescription>
           </Alert>
         )}
         {apiKey && !apiKeySaved && (
-          <Button variant="default" onClick={saveApiKey}>
-            Save API Key
+          <Button variant="default" onClick={() => saveApiKey(undefined)}>
+            Save Auth Token
           </Button>
         )}
       </div>
