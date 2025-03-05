@@ -139,6 +139,17 @@ export const apiEndpoints: Record<string, EndpointDefinition> = {
       },
     },
   },
+  "/ds/count/{schemaUrl}": {
+    method: "POST",
+    path: `${apiPrefix}/ds/count/{schemaUrl}`,
+    documentation: "Count the number of records in a datastore",
+    urlVariables: {
+      schemaUrl: commonUrlVariables.schemaUrl!,
+    },
+    params: {
+      query: commonParams.query!,
+    },
+  },
   "/ds/get/{schemaUrl}/{recordId}": {
     method: "GET",
     path: `${apiPrefix}/ds/get/{schemaUrl}/{recordId}`,
@@ -335,6 +346,18 @@ Each result contains the chat group and an array of messages.`,
         type: "string",
         required: true,
         documentation: `User prompt (ie: \`How much have I spent on software this quarter?\`)`,
+      },
+    },
+  },
+  "/connections/profiles": {
+    method: "GET",
+    path: `${apiPrefix}/connections/profiles`,
+    documentation: `Fetch the profile of a connection (ie: "google" or "telegram").`,
+    params: {
+      providerId: {
+        type: "string",
+        required: false,
+        documentation: `Optional filter to return profile of a specific provider (ie: "google" or "telegram")`,
       },
     },
   },

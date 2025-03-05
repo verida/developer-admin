@@ -457,6 +457,10 @@ print(response.json())`
             <Link href="/sandbox/token-info">Token Info</Link> page
           </p>
 
+          <div className="space-y-2">
+            <h2 className="text-lg font-semibold">API Endpoint</h2>
+          </div>
+
           {/* Endpoint Selector */}
           <div className="space-y-1">
             <Label htmlFor="endpointSelect">Select Endpoint</Label>
@@ -478,16 +482,20 @@ print(response.json())`
                 })}
               </SelectContent>
             </Select>
+            <p>
+              <i>{apiEndpoints[endpoint]!.documentation}</i>
+            </p>
           </div>
 
           {/* Base URL Input (optional) */}
           <div className="space-y-1">
-            <Label htmlFor="baseUrl">API Server URL Endpoint</Label>
+            <Label htmlFor="baseUrl">API Server</Label>
             <Input
               id="baseUrl"
               value={baseUrl || ""}
               onChange={(e) => setBaseUrl(e.target.value)}
               placeholder="https://your.custom.server"
+              disabled={true}
             />
           </div>
 
@@ -495,7 +503,7 @@ print(response.json())`
           {Object.entries(apiEndpoints[endpoint]!.urlVariables || {}).length >
             0 && (
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold">URL Variables</h3>
+              <h2 className="text-lg font-semibold">URL Variables</h2>
               {renderUrlVariableFields()}
             </div>
           )}
@@ -503,7 +511,7 @@ print(response.json())`
           {/* Params */}
           {Object.entries(apiEndpoints[endpoint]!.params || {}).length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Parameters</h3>
+              <h2 className="text-lg font-semibold">Parameters</h2>
               {renderParamsFields()}
             </div>
           )}
