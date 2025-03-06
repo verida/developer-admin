@@ -361,4 +361,16 @@ Each result contains the chat group and an array of messages.`,
       },
     },
   },
+  "/connections/status": {
+    method: "GET",
+    path: `${apiPrefix}/connections/status`,
+    documentation: `Access status information on connected third party accounts (ie: Google, Telegram)`,
+    params: {
+      providerId: {
+        type: "string",
+        required: false,
+        documentation: `Optional filter to return profile of a specific provider (ie: "google" or "telegram")`,
+      },
+    },
+  },
 }
