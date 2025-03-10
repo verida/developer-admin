@@ -1663,10 +1663,10 @@
     lodash "^4.17.21"
     tweetnacl-util "^0.15.1"
 
-"@verida/client-ts@^4.4.1":
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/@verida/client-ts/-/client-ts-4.4.1.tgz#29a307bf9cffe7709f3f45055e7fe52683dc2152"
-  integrity sha512-1YIqt4V/TO/a/qGAanLgcC14wYzw08386LVaT6fVnoXG7mA+GJGQewa3Plgr3BuR9/LhhMc1FaBZfL9B5Bg9NQ==
+"@verida/client-ts@^4.4.2":
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/@verida/client-ts/-/client-ts-4.4.2.tgz#864af61bbe2c12836a83c284d31b8e13a555fede"
+  integrity sha512-hn77jZ9H03XEqOBwqpNO63EpbVd8W0Mk6Q3XiD8OAHYD/4cgfF+QxI3sMZOH8kYVMzVeWVH53KRGXxdysCG1HA==
   dependencies:
     "@verida/account" "^4.4.1"
     "@verida/did-client" "^4.4.1"
@@ -1840,13 +1840,13 @@
     axios "^0.27.2"
     ethers "^5.7.0"
 
-"@verida/web-helpers@^4.4.1":
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/@verida/web-helpers/-/web-helpers-4.4.1.tgz#adb500a648a8da22626550da07f01083da4bd96f"
-  integrity sha512-f6IC+s09Uq7RVQzmBqcsHYwBQPZZrBp1xhZNt8dVHhAnOfZSWn8h3x5unzYJ5HKaCFQYQAZGcDb7O8DKO7YZdQ==
+"@verida/web-helpers@^4.4.2":
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/@verida/web-helpers/-/web-helpers-4.4.2.tgz#76c319a8c766db8b3711ca838e02dc03be478c4d"
+  integrity sha512-xH+RmmFvjKagUjXyZWgJ3pERAvKY6Yf7iCB8y3tytakaQg6rNG4n2d70crYVcvD6gesPo7zJPnyOhswKZuCSoQ==
   dependencies:
     "@verida/account-web-vault" "^4.4.1"
-    "@verida/client-ts" "^4.4.1"
+    "@verida/client-ts" "^4.4.2"
     "@verida/types" "^4.4.0"
 
 "@verida/web3@^4.4.0":
