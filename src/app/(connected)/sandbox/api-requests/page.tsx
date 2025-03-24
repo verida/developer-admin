@@ -489,9 +489,11 @@ print(response.json())`
                 })}
               </SelectContent>
             </Select>
-            <p>
-              <i>{apiEndpoints[endpoint]!.documentation}</i>
-            </p>
+            <div className="rounded border bg-muted p-4">
+              <pre className="whitespace-pre-wrap text-sm">
+                {apiEndpoints[endpoint]!.documentation}
+              </pre>
+            </div>
           </div>
 
           {/* Base URL Input (optional) */}
@@ -570,13 +572,15 @@ print(response.json())`
             <h3 className="text-lg font-semibold">
               Result {resultError ? "(Error)" : ""}
             </h3>
-            <pre
-              id="result"
-              className="min-h-[200px] overflow-auto rounded bg-muted p-4 text-sm"
-            >
-              {resultError}
-              {result}
-            </pre>
+            <div className="rounded border bg-muted p-4">
+              <pre
+                id="result"
+                className="min-h-[200px] overflow-auto rounded bg-muted p-4 text-sm"
+              >
+                {resultError}
+                {result}
+              </pre>
+            </div>
           </div>
         </CardContent>
       </Card>
