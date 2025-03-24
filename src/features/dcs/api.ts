@@ -28,6 +28,7 @@ export async function getAccount(
     const result = await response.json()
     return <BillingAccount> result.account
   } catch (error) {
+    // eslint-disable-next-line prettier/prettier
     throw new Error("Error getting Verida records", { cause: error })
   }
 }
@@ -83,9 +84,9 @@ export async function submitDeposit(userAccount: IAccount, sessionToken: string,
                     throw new Error(`${json.error}`)
                   }
               
-                } catch (error: any) {
-                    console.log(error)
-                  throw new Error(error.message)
+                } catch (error: unknown) {
+                  const err = error as Error
+                  throw new Error(err.message)
                 }
 }
 
@@ -99,7 +100,6 @@ export async function getVdaPrice(sessionToken: string): Promise<number> {
     })
 
     const json = await response.json()
-    console.log(json)
     return <number> json.price
 }
 
@@ -139,7 +139,7 @@ export async function fetchScopes(): Promise<Record<string, Scope>> {
     return scopeResponse.scopes
 }
 
-export async function fetchTokenData(authToken: string): Promise<any> {
+export async function fetchTokenData(authToken: string): Promise<unknown> {
     const response = await fetch(`${BASE_API}/auth/token?tokenId=${encodeURIComponent(authToken)}`)
     if (!response.ok) {
         throw new Error("Failed to fetch token data")
