@@ -255,9 +255,12 @@ Returns:
       index: {
         type: "object",
         documentation: "Array of fields to include in the search index",
-        default: JSON.stringify(
-          `["name", "description", "favouriteType", "sourceApplication"]`
-        ),
+        default: JSON.stringify([
+          "name",
+          "description",
+          "favouriteType",
+          "sourceApplication",
+        ]),
         required: true,
       },
       options: {
@@ -276,7 +279,7 @@ Returns:
 }
 \`\`\`
 `,
-        default: JSON.stringify("{}"),
+        default: JSON.stringify({}),
       },
       limit: {
         type: "number",
@@ -288,13 +291,13 @@ Returns:
         type: "object",
         documentation:
           "Comma separated list of fields to include in search index (ie: `name,description`)",
-        default: JSON.stringify(`["name", "description"]`),
+        default: JSON.stringify(["name", "description"]),
       },
       store: {
         type: "object",
         documentation:
           "Comma separated list of fields to store in the index and return with results (ie: `name,description`)",
-        default: JSON.stringify(`["name", "description"]`),
+        default: JSON.stringify(["name", "description"]),
       },
     },
   },

@@ -111,14 +111,17 @@ export default function ApiRequestsPage() {
     let builtUrl = (baseUrl || "") + config.path
 
     // Replace {variable} in URL
-    if (config.urlVariables) {
-      for (const [varName, varObj] of Object.entries(config.urlVariables)) {
+    if (urlVariables) {
+      for (const [varName, varObj] of Object.entries(urlVariables)) {
         let val = urlVariables[varName]
         if (val && varObj.preProcessing) {
           val = varObj.preProcessing(val)
         }
         // If missing, keep the {varName} placeholder
         if (val) {
+          if (varName == "schemaUrl") {
+            val = btoa(val)
+          }
           builtUrl = builtUrl.replace(`{${varName}}`, encodeURIComponent(val))
         }
       }
@@ -126,8 +129,8 @@ export default function ApiRequestsPage() {
 
     // Build data object
     const data: Record<string, any> = {}
-    if (config.params) {
-      for (const [paramName, paramObj] of Object.entries(config.params)) {
+    if (params) {
+      for (const [paramName, paramObj] of Object.entries(params)) {
         let pval = params[paramName]
         // If it's JSON, parse it (some endpoints require JSON)
         if (paramObj.type === "object" || isLikelyJsonString(pval)) {
@@ -263,13 +266,16 @@ print(response.json())`
       const method = config.method
 
       // Prepare URL variables
-      if (config.urlVariables) {
-        for (const [varName, varObj] of Object.entries(config.urlVariables)) {
+      if (urlVariables) {
+        for (const [varName, varObj] of Object.entries(urlVariables)) {
           let val = urlVariables[varName]
           if (val && varObj.preProcessing) {
             val = varObj.preProcessing(val)
           }
           if (val) {
+            if (varName == "schemaUrl") {
+              val = btoa(val)
+            }
             builtUrl = builtUrl.replace(`{${varName}}`, encodeURIComponent(val))
           }
         }
@@ -277,8 +283,8 @@ print(response.json())`
 
       // Prepare data
       const data: Record<string, any> = {}
-      if (config.params) {
-        for (const [paramName, paramObj] of Object.entries(config.params)) {
+      if (params) {
+        for (const [paramName, paramObj] of Object.entries(params)) {
           let pval = params[paramName]
           if (paramObj.type === "object" || isLikelyJsonString(pval)) {
             try {
@@ -315,6 +321,8 @@ print(response.json())`
       }
 
       setResult("")
+      setResultError("")
+      setResultErrorMessage("")
       const res = await fetch(fetchUrl, fetchOptions)
       if (!res.ok) {
         const text = await res.text()
@@ -331,10 +339,9 @@ print(response.json())`
 
   // Render dynamic fields for urlVariables
   function renderUrlVariableFields() {
-    const config = apiEndpoints[endpoint]!
-    if (!config.urlVariables) return null
+    if (!urlVariables) return null
 
-    return Object.entries(config.urlVariables).map(([varName, varObj]) => (
+    return Object.entries(urlVariables).map(([varName, varObj]) => (
       <div key={varName} className="space-y-1">
         <Label htmlFor={`urlVar-${varName}`}>
           {varName}
@@ -347,12 +354,12 @@ print(response.json())`
               ? schemaUrl
               : (urlVariables[varName] ?? "")
           }
-          onChange={(e) =>
+          onChange={(e) => {
             setUrlVariables((prev) => ({
               ...prev,
               [varName]: e.target.value,
             }))
-          }
+          }}
         />
         <div className="text-sm text-gray-600">
           <ReactMarkdown>{varObj.documentation}</ReactMarkdown>
@@ -380,6 +387,7 @@ print(response.json())`
                           ...prev,
                           ["schemaUrl"]: url,
                         }))
+                        buildCodeExamples()
                       }}
                     >
                       {name}
@@ -396,10 +404,9 @@ print(response.json())`
 
   // Render dynamic fields for params
   function renderParamsFields() {
-    const config = apiEndpoints[endpoint]!
-    if (!config.params) return null
+    if (!params) return null
 
-    return Object.entries(config.params).map(([paramName, paramObj]) => {
+    return Object.entries(params).map(([paramName, paramObj]) => {
       const isTextArea =
         paramObj.type === "object" || isLikelyJsonString(paramObj.default)
       return (
@@ -482,9 +489,11 @@ print(response.json())`
                 })}
               </SelectContent>
             </Select>
-            <p>
-              <i>{apiEndpoints[endpoint]!.documentation}</i>
-            </p>
+            <div className="rounded border bg-muted p-4">
+              <pre className="whitespace-pre-wrap text-sm">
+                {apiEndpoints[endpoint]!.documentation}
+              </pre>
+            </div>
           </div>
 
           {/* Base URL Input (optional) */}
@@ -563,13 +572,15 @@ print(response.json())`
             <h3 className="text-lg font-semibold">
               Result {resultError ? "(Error)" : ""}
             </h3>
-            <pre
-              id="result"
-              className="min-h-[200px] overflow-auto rounded bg-muted p-4 text-sm"
-            >
-              {resultError}
-              {result}
-            </pre>
+            <div className="rounded border bg-muted p-4">
+              <pre
+                id="result"
+                className="min-h-[200px] overflow-auto rounded bg-muted p-4 text-sm"
+              >
+                {resultError}
+                {result}
+              </pre>
+            </div>
           </div>
         </CardContent>
       </Card>

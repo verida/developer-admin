@@ -74,7 +74,7 @@ export default function BrowseDataPage() {
   useEffect(() => {
     const key = localStorage.getItem("authToken")
     if (!key) {
-      router.push("/sandbox/generate-api-key")
+      router.push("/sandbox/generate-token")
       return
     }
 
