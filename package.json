@@ -52,24 +52,24 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.10",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
-    "@types/node": "^22.12.0",
+    "@types/node": "^22.13.14",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^9.19.0",
-    "eslint-config-next": "^15.1.6",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.3",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.23.0",
+    "eslint-config-next": "^15.2.4",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.5",
     "file-loader": "^6.2.0",
-    "postcss": "^8.5.1",
-    "prettier": "^3.4.2",
+    "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.2"
   },
   "resolutions": {
     "qrcode-with-logos": "1.0.3"
