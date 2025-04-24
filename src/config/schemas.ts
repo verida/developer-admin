@@ -9,6 +9,7 @@ export const CommonConfigSchema = z.object({
     .string()
     .optional()
     .transform((value) => value === "true"),
+  LOG_LEVEL: z.enum(["error", "warn", "info", "debug"]).default("info"),
   VERIDA_NETWORK: z
     .enum(["myrtle", "banksia", "devnet", "local"])
     .default("banksia")
