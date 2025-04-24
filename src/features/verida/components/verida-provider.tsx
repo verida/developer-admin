@@ -1,6 +1,5 @@
 "use client"
 
-import { type DatastoreOpenConfig } from "@verida/types"
 import { WebUser, type WebUserProfile } from "@verida/web-helpers"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
@@ -166,52 +165,26 @@ export function VeridaProvider(props: VeridaProviderProps) {
     return sessionToken
   }, [webUserInstanceRef])
 
-  const openDatastore = useCallback(
-    async (schemaUrl: string, config?: DatastoreOpenConfig) => {
-      console.info("Opening Verida datastore", {
-        schemaUrl,
-        config,
-      })
-
-      const datastore = await webUserInstanceRef.current.openDatastore(
-        schemaUrl,
-        config
-      )
-
-      console.info("Verida datastore succesfully opened", {
-        schemaUrl,
-        config,
-      })
-      return datastore
-    },
-    [webUserInstanceRef]
-  )
-
   const contextValue: VeridaContextType = useMemo(
     () => ({
-      isReady: isConnected && !!did,
+      webUserInstanceRef,
       isConnected,
       isConnecting,
-      isDisconnecting,
       did,
+      profile,
       connect,
       disconnect,
       getAccountSessionToken,
-      openDatastore,
-      profile,
-      webUserInstanceRef,
     }),
     [
+      webUserInstanceRef,
       isConnected,
       isConnecting,
-      isDisconnecting,
       did,
+      profile,
       connect,
       disconnect,
       getAccountSessionToken,
-      openDatastore,
-      profile,
-      webUserInstanceRef,
     ]
   )
 
