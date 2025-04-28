@@ -1,4 +1,3 @@
-import { Network } from "@verida/types"
 import { z } from "zod"
 
 export const CommonConfigSchema = z.object({
@@ -11,24 +10,6 @@ export const CommonConfigSchema = z.object({
     .optional()
     .transform((value) => value === "true"),
   LOG_LEVEL: z.enum(["error", "warn", "info", "debug"]).default("info"),
-  VERIDA_NETWORK: z
-    .enum(["myrtle", "banksia", "devnet", "local"])
-    .default("banksia")
-    .transform((value) => {
-      return value === "myrtle"
-        ? Network.MYRTLE
-        : value === "banksia"
-          ? Network.BANKSIA
-          : value === "devnet"
-            ? Network.DEVNET
-            : value === "local"
-              ? Network.LOCAL
-              : Network.BANKSIA
-    }),
-  VERIDA_RPC_URL: z
-    .union([z.string().url(), z.literal("")])
-    .optional()
-    .transform((value) => (value === "" ? undefined : value)),
   isClient: z.boolean(),
   appVersion: z.string(),
 })

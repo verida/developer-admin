@@ -1,10 +1,14 @@
 "use client"
 
-import { Disclosure } from "@headlessui/react"
 import Image from "next/image"
 import React, { useEffect, useState } from "react"
 
-import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -12,7 +16,7 @@ import { Separator } from "@/components/ui/separator"
 import { commonConfig } from "@/config/common"
 import { fetchScopes } from "@/features/dcs/api"
 import type { Scope } from "@/features/dcs/interfaces"
-import { useVerida } from "@/features/verida/hooks/use-verida"
+import { useVeridaAuth } from "@/features/verida-auth/hooks/use-verida-auth"
 
 const DEFAULT_SCOPES = [
   "api:ds-query",
@@ -27,7 +31,7 @@ const RETURN_URL = `${commonConfig.BASE_URL}/sandbox/token-generated`
 
 export default function GenerateApiKeyPage() {
   const [scopes, setScopes] = useState<Record<string, Scope>>({})
-  const { did } = useVerida()
+  const { authDetails } = useVeridaAuth()
   const [selectedScopes, setSelectedScopes] = useState<string[]>([
     ...DEFAULT_SCOPES,
   ])
@@ -41,12 +45,16 @@ export default function GenerateApiKeyPage() {
   }, [])
 
   function buildConnectUrl(): string {
+    if (!authDetails?.did) {
+      return "#"
+    }
+
     const redirectUrl = new URL(AUTH_ENDPOINT)
     for (const scope of selectedScopes) {
       redirectUrl.searchParams.append("scopes", scope)
     }
     redirectUrl.searchParams.append("redirectUrl", RETURN_URL)
-    redirectUrl.searchParams.append("appDID", did!)
+    redirectUrl.searchParams.append("appDID", authDetails?.did)
     return redirectUrl.toString()
   }
 
@@ -89,105 +97,86 @@ export default function GenerateApiKeyPage() {
             )}
 
             {/* Collapsible sections for different scope groups */}
-            <div className="space-y-4">
-              {/* API Scopes Section */}
-              <Disclosure>
-                {({ open }) => (
-                  <div>
-                    <Disclosure.Button className="text-lg font-semibold">
-                      API Scopes {open ? "-" : "+"}
-                    </Disclosure.Button>
-                    <Disclosure.Panel>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {Object.entries(scopes)
-                          .filter(([key, scope]) => scope.type === "api")
-                          .map(([scopeKey, scopeDef], idx) => {
-                            const isChecked = selectedScopes.includes(scopeKey)
-                            return (
-                              <div
-                                key={scopeKey}
-                                className="flex items-start space-x-2"
-                              >
-                                <Checkbox
-                                  id={`scope-${idx}`}
-                                  checked={isChecked}
-                                  onCheckedChange={(checked: boolean) =>
-                                    handleScopeToggle(scopeKey, checked)
-                                  }
-                                />
-                                <Label
-                                  htmlFor={`scope-${idx}`}
-                                  className="whitespace-normal break-words leading-tight"
-                                >
-                                  <span className="font-medium">
-                                    {scopeKey}
-                                  </span>
-                                  <br />
-                                  <span className="text-sm text-muted-foreground">
-                                    {scopeDef.description}
-                                  </span>
-                                  {scopeDef.credits && (
-                                    <div className="mt-1 text-sm text-muted-foreground">
-                                      <strong>{scopeDef.credits}</strong>{" "}
-                                      credits
-                                    </div>
-                                  )}
-                                </Label>
-                              </div>
-                            )
-                          })}
-                      </div>
-                    </Disclosure.Panel>
-                  </div>
-                )}
-              </Disclosure>
 
-              {/* Datastore Scopes Section */}
-              <Disclosure>
-                {({ open }) => (
-                  <div>
-                    <Disclosure.Button className="text-lg font-semibold">
-                      Datastore Scopes {open ? "-" : "+"}
-                    </Disclosure.Button>
-                    <Disclosure.Panel>
-                      <div className="grid grid-cols-1 gap-4">
-                        {Object.entries(scopes)
-                          .filter(([key, scope]) => scope.type === "ds")
-                          .map(([scopeKey, scopeDef], idx) => {
-                            const isChecked = selectedScopes.includes(scopeKey)
-                            return (
-                              <div
-                                key={scopeKey}
-                                className="flex items-start space-x-2"
-                              >
-                                <Checkbox
-                                  id={`scope-${idx}`}
-                                  checked={isChecked}
-                                  onCheckedChange={(checked: boolean) =>
-                                    handleScopeToggle(scopeKey, checked)
-                                  }
-                                />
-                                <Label
-                                  htmlFor={`scope-${idx}`}
-                                  className="whitespace-normal break-words leading-tight"
-                                >
-                                  <span className="font-medium">
-                                    {scopeKey}
-                                  </span>
-                                  <br />
-                                  <span className="text-sm text-muted-foreground">
-                                    {scopeDef.description}
-                                  </span>
-                                </Label>
-                              </div>
-                            )
-                          })}
-                      </div>
-                    </Disclosure.Panel>
+            <Accordion type="multiple">
+              <AccordionItem value="api">
+                <AccordionTrigger>API Scopes</AccordionTrigger>
+                <AccordionContent>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {Object.entries(scopes)
+                      .filter(([key, scope]) => scope.type === "api")
+                      .map(([scopeKey, scopeDef], idx) => {
+                        const isChecked = selectedScopes.includes(scopeKey)
+                        return (
+                          <div
+                            key={scopeKey}
+                            className="flex items-start space-x-2"
+                          >
+                            <Checkbox
+                              id={`scope-${idx}`}
+                              checked={isChecked}
+                              onCheckedChange={(checked: boolean) =>
+                                handleScopeToggle(scopeKey, checked)
+                              }
+                            />
+                            <Label
+                              htmlFor={`scope-${idx}`}
+                              className="whitespace-normal break-words leading-tight"
+                            >
+                              <span className="font-medium">{scopeKey}</span>
+                              <br />
+                              <span className="text-sm text-muted-foreground">
+                                {scopeDef.description}
+                              </span>
+                              {scopeDef.credits && (
+                                <div className="mt-1 text-sm text-muted-foreground">
+                                  <strong>{scopeDef.credits}</strong> credits
+                                </div>
+                              )}
+                            </Label>
+                          </div>
+                        )
+                      })}
                   </div>
-                )}
-              </Disclosure>
-            </div>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="datastore">
+                <AccordionTrigger>Datastore Scopes</AccordionTrigger>
+                <AccordionContent>
+                  <div className="grid grid-cols-1 gap-4">
+                    {Object.entries(scopes)
+                      .filter(([key, scope]) => scope.type === "ds")
+                      .map(([scopeKey, scopeDef], idx) => {
+                        const isChecked = selectedScopes.includes(scopeKey)
+                        return (
+                          <div
+                            key={scopeKey}
+                            className="flex items-start space-x-2"
+                          >
+                            <Checkbox
+                              id={`scope-${idx}`}
+                              checked={isChecked}
+                              onCheckedChange={(checked: boolean) =>
+                                handleScopeToggle(scopeKey, checked)
+                              }
+                            />
+                            <Label
+                              htmlFor={`scope-${idx}`}
+                              className="whitespace-normal break-words leading-tight"
+                            >
+                              <span className="font-medium">{scopeKey}</span>
+                              <br />
+                              <span className="text-sm text-muted-foreground">
+                                {scopeDef.description}
+                              </span>
+                            </Label>
+                          </div>
+                        )
+                      })}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
 
           <Separator />

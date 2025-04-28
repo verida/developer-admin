@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { navItems } from "@/config/nav"
 import type { NavItem } from "@/config/nav"
-import { useVerida } from "@/features/verida/hooks/use-verida"
+import { useVeridaAuth } from "@/features/verida-auth/hooks/use-verida-auth"
 import { cn } from "@/styles/utils"
 
 // If you have a classNames utility
@@ -32,7 +32,7 @@ function SidebarLink({ item }: { item: NavItem }) {
 }
 
 export function SidebarNav() {
-  const { disconnect } = useVerida()
+  const { disconnect } = useVeridaAuth()
 
   return (
     <nav className="flex h-full flex-col justify-between">

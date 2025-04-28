@@ -2,57 +2,61 @@
 
 import { Info } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { accountUsage, getAccount, registerAccount } from "@/features/dcs/api"
 import type { BillingAccount, UsageStats } from "@/features/dcs/interfaces"
 import { accountCredits } from "@/features/dcs/utils"
-import { useVerida } from "@/features/verida/hooks/use-verida"
+import { useVeridaAuth } from "@/features/verida-auth/hooks/use-verida-auth"
 
 // webUserInstanceRef
 export default function DashboardPage() {
-  const { did, profile, getAccountSessionToken } = useVerida()
+  const { authDetails } = useVeridaAuth()
   const [account, setAccount] = useState<BillingAccount | null>(null)
   const [credits, setCredits] = useState<number | null>(null)
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
 
-  // const imgSrc = `data:image/png;base64,${profile?.avatarUri}`
+  const loadAccount = useCallback(async () => {
+    if (!authDetails?.token) {
+      return
+    }
 
-  async function handleRegisterClick() {
-    // Place your registration logic here
-    const sessionToken = await getAccountSessionToken()
-    const newAccount = await registerAccount(sessionToken)
+    const account = await getAccount(authDetails.token)
+
+    if (account) {
+      setAccount(account)
+      setCredits(await accountCredits(authDetails.token, account))
+      setUsageStats(await accountUsage(authDetails.token))
+    }
+  }, [authDetails])
+
+  const handleRegisterClick = useCallback(async () => {
+    if (!authDetails?.token) {
+      return
+    }
+
+    const newAccount = await registerAccount(authDetails.token)
 
     if (newAccount) {
       loadAccount()
     }
-  }
-
-  // A function that does something on mount
-  async function loadAccount() {
-    const sessionToken = await getAccountSessionToken()
-    const account = await getAccount(sessionToken)
-
-    if (account) {
-      setAccount(account)
-      setCredits(await accountCredits(sessionToken, account))
-      setUsageStats(await accountUsage(sessionToken))
-    }
-  }
+  }, [authDetails, loadAccount])
 
   // Run the function once, when the component mounts
   useEffect(() => {
     loadAccount()
-  }, [])
+  }, [loadAccount])
 
   return (
     <div>
       <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p className="mt-4">
-        Welcome <strong>{profile?.name}</strong> (
-        <span className="mt-4 text-sm">{did}</span>)
+      <p
+        className="mt-4"
+        // TODO: Display user name from its profile
+      >
+        Welcome (<span className="mt-4 text-sm">{authDetails?.did}</span>)
       </p>
       {!account && (
         <Alert variant="default" className="mt-10 flex flex-col gap-2">

@@ -20,7 +20,7 @@ export default function ApiKeyGeneratedPage() {
   const searchParams = useSearchParams()
   const [apiKey, setApiKey] = useState<string>("")
   const [apiKeySaved, setApiKeySaved] = useState<boolean>(false)
-  const [tokenData, setTokenData] = useState<object>({})
+  const [tokenData, setTokenData] = useState<Record<string, unknown>>({})
 
   function saveApiKey(key?: string) {
     localStorage.setItem("authToken", key || apiKey)
