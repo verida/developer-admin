@@ -1,6 +1,6 @@
 import { AppProviders } from "@/components/app-providers"
-import { SidebarNav } from "@/components/sidebar-nav"
 import { AppAuthenticationHandler } from "@/features/auth/components/app-authentication-handler"
+import { Sidebar } from "@/features/sidebar/components/sidebar"
 
 export interface AppLayoutProps {
   children: React.ReactNode
@@ -14,7 +14,7 @@ export default function AppLayout(props: AppLayoutProps) {
       <AppProviders>
         <div className="flex h-screen">
           <aside className="w-64 border-r bg-card p-4">
-            <SidebarNav />
+            <Sidebar />
           </aside>
           <div className="flex h-dvh flex-col bg-background">
             {/* <AppHeader /> */}
