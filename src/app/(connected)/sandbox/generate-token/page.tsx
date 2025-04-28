@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import React, { useEffect, useState } from "react"
 
 import {
@@ -9,6 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -71,11 +73,6 @@ export default function GenerateApiKeyPage() {
     })
   }
 
-  function handleConnectVerida() {
-    window.location.href = buildConnectUrl()
-  }
-
-  // Render
   return (
     <div className="p-4 md:p-6">
       <Card>
@@ -183,15 +180,21 @@ export default function GenerateApiKeyPage() {
 
           {/* Connect Section */}
           <div className="space-y-4">
-            <a href={buildConnectUrl()}>
-              <Image
-                src="https://assets.verida.io/auth/Connect-Verida.png"
-                alt="Connect Verida"
-                width={200}
-                height={30}
-                className="h-auto w-auto"
-              />
-            </a>
+            <Button className="w-fit" asChild>
+              <Link
+                href={buildConnectUrl()}
+                className="flex flex-row items-center gap-2"
+              >
+                <Image
+                  src="/images/verida-network-logo.svg"
+                  alt="Verida Network Logo"
+                  className="size-6 text-foreground"
+                  width={144}
+                  height={144}
+                />
+                <span>Connect Verida</span>
+              </Link>
+            </Button>
             <div>
               <p className="mb-1 text-sm text-muted-foreground">Connect URL:</p>
               <p className="break-all text-sm">{buildConnectUrl()}</p>
