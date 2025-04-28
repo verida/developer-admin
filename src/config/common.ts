@@ -11,6 +11,7 @@ const commonConfigCheckResult = CommonConfigSchema.safeParse({
   VERIDA_NETWORK: process.env.NEXT_PUBLIC_VERIDA_NETWORK,
   VERIDA_RPC_URL: process.env.NEXT_PUBLIC_VERIDA_RPC_URL,
   VAULT_AUTH_ENDPOINT: process.env.NEXT_PUBLIC_VAULT_AUTH_ENDPOINT,
+  VERIDA_APP_DID: process.env.NEXT_PUBLIC_VERIDA_APP_DID,
   DCS_URL: process.env.NEXT_PUBLIC_DCS_URL,
   isClient: !(typeof window === "undefined"),
   appVersion: version,
