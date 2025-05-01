@@ -5,10 +5,7 @@ import type {
 
 export const AUTH_TOKEN_LOCAL_STORAGE_KEY = "kyra_verida_auth_token"
 
-export const VERIDA_AUTH_REQUIRED_SCOPES: string[] = [
-  "api:ds-query",
-  "api:db-query",
-]
+export const VERIDA_AUTH_REQUIRED_SCOPES: string[] = ["api:app-developer"]
 
 export const VERIDA_AUTH_ERROR_MESSAGES: Record<
   VeridaAuthResponseError,

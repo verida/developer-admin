@@ -19,18 +19,18 @@ export async function getAccount(
     })
 
     if (!response.ok) {
-      if (response.status == 404) {
+      if (response.status === 404) {
         return
       }
-      throw new Error(`HTTP error ${response.status}`)
+      throw new Error(`HTTP error ${response.status}: ${response.statusText}`)
     }
 
-
-
     const result = await response.json()
+
+    // TODO: Properly validate the response to avoid assertions
     return <BillingAccount> result.account
   } catch (error) {
-    throw new Error("Error getting Verida records", { cause: error })
+    throw new Error("Error getting billing account", { cause: error })
   }
 }
 
