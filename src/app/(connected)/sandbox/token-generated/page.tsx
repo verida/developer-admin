@@ -6,9 +6,17 @@ import { useCallback, useEffect, useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { fetchTokenData } from "@/features/dcs/api"
 import { SANDBOX_AUTH_TOKEN_STORAGE_KEY } from "@/features/sandbox/constants"
-import { maskToken } from "@/features/token/utils"
 
 export default function ApiKeyGeneratedPage() {
   const searchParams = useSearchParams()
@@ -19,6 +27,7 @@ export default function ApiKeyGeneratedPage() {
   const saveApiKey = useCallback(
     (key?: string) => {
       localStorage.setItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY, key || apiKey)
+      setApiKeySaved(true)
     },
     [apiKey]
   )
@@ -43,36 +52,61 @@ export default function ApiKeyGeneratedPage() {
   }, [onLoad])
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Auth Token Generated</h1>
-      <div>
-        <p>
+    <Card>
+      <CardHeader>
+        <CardTitle>Auth Token</CardTitle>
+        <CardDescription>
           Congratulations! You have successfully created a Verida Auth Token.
           You can now use it to{" "}
-          <Link href="/sandbox/browse-data">Browse your data</Link> or{" "}
-          <Link href="/sandbox/api-requests">Make API requests</Link>.
-        </p>
-
-        <pre className="mt-4">{maskToken(apiKey)}</pre>
-        {apiKeySaved && (
-          <Alert variant="default" className="mb-3">
-            <AlertTitle>Key saved</AlertTitle>
-            <AlertDescription>
-              This Auth Token has been saved to local storage so you can use
-              easily it with the sandbox
-            </AlertDescription>
-          </Alert>
-        )}
-        {apiKey && !apiKeySaved && (
-          <Button variant="default" onClick={() => saveApiKey(undefined)}>
-            Save Auth Token
-          </Button>
-        )}
-      </div>
-      <div>
-        <h2 className="text-xl font-bold">Token Data</h2>
-        <pre className="mt-4">{JSON.stringify(tokenData, null, 2)}</pre>
-      </div>
-    </div>
+          <Link href="/sandbox/browse-data" className="underline">
+            browse your data
+          </Link>{" "}
+          or{" "}
+          <Link href="/sandbox/api-requests" className="underline">
+            make API requests
+          </Link>
+          .
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div>
+          {apiKey ? (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="loaded-token">Token:</Label>
+              <Input id="loaded-token" value={apiKey} readOnly />
+              {apiKeySaved ? (
+                <Alert variant="default" className="mb-3">
+                  <AlertTitle>Token saved</AlertTitle>
+                  <AlertDescription>
+                    This Auth Token has been saved to local storage so you can
+                    use easily it with the sandbox
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Button
+                  variant="default"
+                  className="w-fit"
+                  onClick={() => saveApiKey(undefined)}
+                >
+                  Save Auth Token
+                </Button>
+              )}
+            </div>
+          ) : (
+            <Alert variant="destructive">
+              <AlertDescription>No token found</AlertDescription>
+            </Alert>
+          )}
+        </div>
+        {tokenData ? (
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl font-bold">Token info</h2>
+            <pre className="overflow-auto rounded bg-muted p-4 text-sm">
+              {JSON.stringify(tokenData, null, 2)}
+            </pre>
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
   )
 }
