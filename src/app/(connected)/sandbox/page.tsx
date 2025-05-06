@@ -1,4 +1,4 @@
-export default function SandboxIndexPage() {
+export default function SandboxPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold">Sandbox</h1>
@@ -10,3 +10,4 @@ export default function SandboxIndexPage() {
     </div>
   )
 }
+SandboxPage.displayName = "SandboxPage"
