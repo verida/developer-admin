@@ -34,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { apiEndpoints } from "@/config/apiEndpoints"
 import { commonConfig } from "@/config/common"
 import { SCHEMA_MAP } from "@/features/dcs/schemas"
+import { SANDBOX_AUTH_TOKEN_STORAGE_KEY } from "@/features/sandbox/constants"
 
 const BASE_API = commonConfig.DCS_URL
 
@@ -72,7 +73,7 @@ export default function ApiRequestsPage() {
 
   // On mount, load the veridaKey from localStorage
   useEffect(() => {
-    const key = localStorage.getItem("authToken")
+    const key = localStorage.getItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY)
     setVeridaKey(key)
   }, [router])
 

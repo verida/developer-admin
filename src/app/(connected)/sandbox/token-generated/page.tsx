@@ -2,19 +2,13 @@
 
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { fetchTokenData } from "@/features/dcs/api"
-
-function maskToken(token: string) {
-  // If shorter than 16, just show all
-  if (token.length < 16) return token
-  const start = token.slice(0, 8)
-  const end = token.slice(-8)
-  return `${start}..............${end}`
-}
+import { SANDBOX_AUTH_TOKEN_STORAGE_KEY } from "@/features/sandbox/constants"
+import { maskToken } from "@/features/token/utils"
 
 export default function ApiKeyGeneratedPage() {
   const searchParams = useSearchParams()
@@ -22,11 +16,14 @@ export default function ApiKeyGeneratedPage() {
   const [apiKeySaved, setApiKeySaved] = useState<boolean>(false)
   const [tokenData, setTokenData] = useState<Record<string, unknown>>({})
 
-  function saveApiKey(key?: string) {
-    localStorage.setItem("authToken", key || apiKey)
-  }
+  const saveApiKey = useCallback(
+    (key?: string) => {
+      localStorage.setItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY, key || apiKey)
+    },
+    [apiKey]
+  )
 
-  async function onLoad() {
+  const onLoad = useCallback(async () => {
     // Get the "auth_token" parameter
     const key = searchParams.get("auth_token")
     if (key) {
@@ -34,16 +31,16 @@ export default function ApiKeyGeneratedPage() {
       const result = await fetchTokenData(key)
       setTokenData(result)
 
-      if (!localStorage.getItem("authToken")) {
+      if (!localStorage.getItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY)) {
         saveApiKey(key)
         setApiKeySaved(true)
       }
     }
-  }
+  }, [searchParams, saveApiKey])
 
   useEffect(() => {
     onLoad()
-  }, [])
+  }, [onLoad])
 
   return (
     <div>

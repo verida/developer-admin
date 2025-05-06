@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select"
 import { commonConfig } from "@/config/common"
 import { SCHEMA_MAP } from "@/features/dcs/schemas"
+import { SANDBOX_AUTH_TOKEN_STORAGE_KEY } from "@/features/sandbox/constants"
 
 interface ApiItem {
   [key: string]: any
@@ -78,7 +79,7 @@ export default function BrowseDataPage() {
   // If no key, redirect to /login
   // ----------------------------
   useEffect(() => {
-    const key = localStorage.getItem("authToken")
+    const key = localStorage.getItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY)
     if (!key) {
       router.push("/sandbox/generate-token")
       return
