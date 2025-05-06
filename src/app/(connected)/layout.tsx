@@ -12,11 +12,11 @@ export default function AppLayout(props: AppLayoutProps) {
   return (
     <AppAuthenticationHandler>
       <AppProviders>
-        <div className="flex h-screen">
+        <div className="flex h-screen flex-row">
           <aside className="w-64 border-r bg-card p-4">
             <Sidebar />
           </aside>
-          <div className="flex h-dvh flex-col bg-background">
+          <div className="flex h-dvh flex-1 flex-col">
             {/* <AppHeader /> */}
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto">
               <main className="h-full w-full max-w-screen-2xl px-4 pb-0 pt-6 md:px-6 md:pt-10 xl:px-8">
