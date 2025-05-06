@@ -3,7 +3,8 @@ import type {
   VeridaAuthResponseError,
 } from "@/features/verida-auth/type"
 
-export const AUTH_TOKEN_LOCAL_STORAGE_KEY = "kyra_verida_auth_token"
+export const AUTH_TOKEN_LOCAL_STORAGE_KEY =
+  "verida_dev_console_verida_auth_token"
 
 export const VERIDA_AUTH_REQUIRED_SCOPES: string[] = ["api:app-developer"]
 
