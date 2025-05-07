@@ -1,24 +1,21 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-// shadcn/ui components (adjust imports to match your actual setup)
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getAccount, getVdaPrice, submitDeposit } from "@/features/dcs/api"
 import type { BillingAccount } from "@/features/dcs/interfaces"
 import { accountBalance, accountCredits } from "@/features/dcs/utils"
-import { useVerida } from "@/features/verida/hooks/use-verida"
 
 // Regex for validating Ethereum/Polygon addresses
 const ethAddressRegex = /^0x[a-fA-F0-9]{40}$/
 
 export default function CreditsPage() {
-  const { getAccountSessionToken, webUserInstanceRef } = useVerida()
-
   // Track current step (1 or 2)
   const [step, setStep] = useState<number>(1)
 
@@ -83,54 +80,56 @@ export default function CreditsPage() {
     }
 
     // If we get here, we have transactionHash
-    const sessionToken = await getAccountSessionToken()
-    const veridaAccount = webUserInstanceRef.current.getAccount()
+    // const sessionToken = await getAccountSessionToken()
 
     try {
-      await submitDeposit(
-        veridaAccount,
-        sessionToken,
-        walletAddress,
-        tokenAmount,
-        transactionHash
-      )
+      // await submitDeposit(
+      //   veridaAccount,
+      //   sessionToken,
+      //   walletAddress,
+      //   tokenAmount,
+      //   transactionHash
+      // )
 
       // Reload account so new credits are displayed
-      await loadAccount()
+      // await loadAccount()
 
       // Reset the form
       setWalletAddress("")
       setTokenAmount("")
       setTransactionHash("")
       handleBack()
-    } catch (err: any) {
-      setSubmitError(`${err.message}`)
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "An unknown error occurred"
+      )
     }
   }
 
-  async function loadAccount() {
-    const sessionToken = await getAccountSessionToken()
-    const account = await getAccount(sessionToken)
+  // const loadAccount = useCallback(async () => {
+  //   // const sessionToken = await getAccountSessionToken()
+  //   const account = await getAccount(sessionToken)
 
-    if (account) {
-      setAccount(account)
-      const credits = await accountCredits(sessionToken, account)
-      console.log(credits)
-      if (credits) {
-        setCredits(credits)
-      }
-    }
-  }
+  //   if (account) {
+  //     setAccount(account)
+  //     const credits = await accountCredits(sessionToken, account)
+  //     // eslint-disable-next-line no-console -- TODO: Replace with Logger
+  //     console.log(credits)
+  //     if (credits) {
+  //       setCredits(credits)
+  //     }
+  //   }
+  // }, [])
 
   // A function that does something on mount
-  async function onLoad() {
-    await loadAccount()
-  }
+  const onLoad = useCallback(async () => {
+    // await loadAccount()
+  }, [])
 
   // Run the function once, when the component mounts
   useEffect(() => {
     onLoad()
-  }, [])
+  }, [onLoad])
 
   return (
     <div className="p-6">

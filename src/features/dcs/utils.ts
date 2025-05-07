@@ -15,11 +15,11 @@ export function accountBalance(account: BillingAccount): number {
 }
 
 export async function accountCredits(
-  sessionToken: string,
+  authToken: string,
   account: BillingAccount
 ) {
   const balance = accountBalance(account)
-  const vdaPrice = await getVdaPrice(sessionToken)
+  const vdaPrice = await getVdaPrice(authToken)
 
   return parseInt((balance / 100.0 / vdaPrice).toString())
 }

@@ -12,7 +12,13 @@ import React, { useEffect, useState } from "react"
 import ReactMarkdown from "react-markdown"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DialogHeader } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -28,14 +34,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { apiEndpoints } from "@/config/apiEndpoints"
 import { commonConfig } from "@/config/common"
 import { SCHEMA_MAP } from "@/features/dcs/schemas"
+import { SANDBOX_AUTH_TOKEN_STORAGE_KEY } from "@/features/sandbox/constants"
 
-// Example "apiEndpoints" object from endpoints.js
-// (truncated for brevity—include all endpoints as needed)
 const BASE_API = commonConfig.DCS_URL
 
 type EndpointKey = keyof typeof apiEndpoints
 
-// For code language selection
 const CODE_LANGUAGES = ["curl", "nodejs", "jquery", "php", "python"] as const
 type CodeLang = (typeof CODE_LANGUAGES)[number]
 
@@ -69,7 +73,7 @@ export default function ApiRequestsPage() {
 
   // On mount, load the veridaKey from localStorage
   useEffect(() => {
-    const key = localStorage.getItem("authToken")
+    const key = localStorage.getItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY)
     setVeridaKey(key)
   }, [router])
 
@@ -111,14 +115,17 @@ export default function ApiRequestsPage() {
     let builtUrl = (baseUrl || "") + config.path
 
     // Replace {variable} in URL
-    if (config.urlVariables) {
-      for (const [varName, varObj] of Object.entries(config.urlVariables)) {
+    if (urlVariables) {
+      for (const [varName, varObj] of Object.entries(urlVariables)) {
         let val = urlVariables[varName]
         if (val && varObj.preProcessing) {
           val = varObj.preProcessing(val)
         }
         // If missing, keep the {varName} placeholder
         if (val) {
+          if (varName == "schemaUrl") {
+            val = btoa(val)
+          }
           builtUrl = builtUrl.replace(`{${varName}}`, encodeURIComponent(val))
         }
       }
@@ -126,8 +133,8 @@ export default function ApiRequestsPage() {
 
     // Build data object
     const data: Record<string, any> = {}
-    if (config.params) {
-      for (const [paramName, paramObj] of Object.entries(config.params)) {
+    if (params) {
+      for (const [paramName, paramObj] of Object.entries(params)) {
         let pval = params[paramName]
         // If it's JSON, parse it (some endpoints require JSON)
         if (paramObj.type === "object" || isLikelyJsonString(pval)) {
@@ -263,13 +270,16 @@ print(response.json())`
       const method = config.method
 
       // Prepare URL variables
-      if (config.urlVariables) {
-        for (const [varName, varObj] of Object.entries(config.urlVariables)) {
+      if (urlVariables) {
+        for (const [varName, varObj] of Object.entries(urlVariables)) {
           let val = urlVariables[varName]
           if (val && varObj.preProcessing) {
             val = varObj.preProcessing(val)
           }
           if (val) {
+            if (varName == "schemaUrl") {
+              val = btoa(val)
+            }
             builtUrl = builtUrl.replace(`{${varName}}`, encodeURIComponent(val))
           }
         }
@@ -277,8 +287,8 @@ print(response.json())`
 
       // Prepare data
       const data: Record<string, any> = {}
-      if (config.params) {
-        for (const [paramName, paramObj] of Object.entries(config.params)) {
+      if (params) {
+        for (const [paramName, paramObj] of Object.entries(params)) {
           let pval = params[paramName]
           if (paramObj.type === "object" || isLikelyJsonString(pval)) {
             try {
@@ -315,6 +325,8 @@ print(response.json())`
       }
 
       setResult("")
+      setResultError("")
+      setResultErrorMessage("")
       const res = await fetch(fetchUrl, fetchOptions)
       if (!res.ok) {
         const text = await res.text()
@@ -331,10 +343,9 @@ print(response.json())`
 
   // Render dynamic fields for urlVariables
   function renderUrlVariableFields() {
-    const config = apiEndpoints[endpoint]!
-    if (!config.urlVariables) return null
+    if (!urlVariables) return null
 
-    return Object.entries(config.urlVariables).map(([varName, varObj]) => (
+    return Object.entries(urlVariables).map(([varName, varObj]) => (
       <div key={varName} className="space-y-1">
         <Label htmlFor={`urlVar-${varName}`}>
           {varName}
@@ -347,12 +358,12 @@ print(response.json())`
               ? schemaUrl
               : (urlVariables[varName] ?? "")
           }
-          onChange={(e) =>
+          onChange={(e) => {
             setUrlVariables((prev) => ({
               ...prev,
               [varName]: e.target.value,
             }))
-          }
+          }}
         />
         <div className="text-sm text-gray-600">
           <ReactMarkdown>{varObj.documentation}</ReactMarkdown>
@@ -380,6 +391,7 @@ print(response.json())`
                           ...prev,
                           ["schemaUrl"]: url,
                         }))
+                        buildCodeExamples()
                       }}
                     >
                       {name}
@@ -396,10 +408,9 @@ print(response.json())`
 
   // Render dynamic fields for params
   function renderParamsFields() {
-    const config = apiEndpoints[endpoint]!
-    if (!config.params) return null
+    if (!params) return null
 
-    return Object.entries(config.params).map(([paramName, paramObj]) => {
+    return Object.entries(params).map(([paramName, paramObj]) => {
       const isTextArea =
         paramObj.type === "object" || isLikelyJsonString(paramObj.default)
       return (
@@ -445,116 +456,130 @@ print(response.json())`
   const codeSamples = buildCodeExamples()
 
   return (
-    <div className="p-4 md:p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Developer API Interface</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>Use this interface to easily generate API queries on your data.</p>
-          <p>
-            API queries are using the token saved at the
-            <Link href="/sandbox/token-info">Token Info</Link> page
-          </p>
+    <Card>
+      <CardHeader>
+        <CardTitle>Developer API Interface</CardTitle>
+        <CardDescription>
+          Use this interface to easily generate API queries on your data.
+        </CardDescription>
+        <CardDescription>
+          API queries are using the token saved on the{" "}
+          <Link href="/sandbox/token-info" className="underline">
+            Token Info
+          </Link>{" "}
+          page
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">API Endpoint</h2>
+        </div>
 
-          {/* Endpoint Selector */}
-          <div className="space-y-1">
-            <Label htmlFor="endpointSelect">Select Endpoint</Label>
-            <Select
-              value={endpoint}
-              onValueChange={(val: EndpointKey) => setEndpoint(val)}
-            >
-              <SelectTrigger id="endpointSelect">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(apiEndpoints).map(([key, cfg]) => {
-                  const text = `${cfg.method} ${key}`
-                  return (
-                    <SelectItem key={key} value={key as EndpointKey}>
-                      {text}
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
+        {/* Endpoint Selector */}
+        <div className="space-y-1">
+          <Label htmlFor="endpointSelect">Select Endpoint</Label>
+          <Select
+            value={endpoint}
+            onValueChange={(val: EndpointKey) => setEndpoint(val)}
+          >
+            <SelectTrigger id="endpointSelect">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(apiEndpoints).map(([key, cfg]) => {
+                const text = `${cfg.method} ${key}`
+                return (
+                  <SelectItem key={key} value={key as EndpointKey}>
+                    {text}
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
+          <div className="rounded border bg-muted p-4">
+            <pre className="whitespace-pre-wrap text-sm">
+              {apiEndpoints[endpoint]!.documentation}
+            </pre>
           </div>
+        </div>
 
-          {/* Base URL Input (optional) */}
-          <div className="space-y-1">
-            <Label htmlFor="baseUrl">API Server URL Endpoint</Label>
-            <Input
-              id="baseUrl"
-              value={baseUrl || ""}
-              onChange={(e) => setBaseUrl(e.target.value)}
-              placeholder="https://your.custom.server"
-            />
-          </div>
+        {/* Base URL Input (optional) */}
+        <div className="space-y-1">
+          <Label htmlFor="baseUrl">API Server</Label>
+          <Input
+            id="baseUrl"
+            value={baseUrl || ""}
+            onChange={(e) => setBaseUrl(e.target.value)}
+            placeholder="https://your.custom.server"
+            disabled={true}
+          />
+        </div>
 
-          {/* URL Variables */}
-          {Object.entries(apiEndpoints[endpoint]!.urlVariables || {}).length >
-            0 && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">URL Variables</h3>
-              {renderUrlVariableFields()}
-            </div>
-          )}
-
-          {/* Params */}
-          {Object.entries(apiEndpoints[endpoint]!.params || {}).length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Parameters</h3>
-              {renderParamsFields()}
-            </div>
-          )}
-
-          {/* Run Endpoint Button */}
-          <Button onClick={handleRunEndpoint}>Run Endpoint</Button>
-
-          {/* Code Examples */}
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-4">
-              <div>
-                <Label>Select Language</Label>
-                <Select
-                  value={codeLang}
-                  onValueChange={(val: CodeLang) => setCodeLang(val)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CODE_LANGUAGES.map((lang) => (
-                      <SelectItem key={lang} value={lang}>
-                        {lang}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="showPrivateKey"
-                  checked={showPrivateKey}
-                  onCheckedChange={(checked) => setShowPrivateKey(!!checked)}
-                />
-                <Label htmlFor="showPrivateKey">Show Private Key</Label>
-              </div>
-            </div>
-
-            <div className="rounded border bg-muted p-4">
-              <pre className="whitespace-pre-wrap text-sm">
-                {codeSamples[codeLang]}
-              </pre>
-            </div>
-          </div>
-
-          {/* Result */}
+        {/* URL Variables */}
+        {Object.entries(apiEndpoints[endpoint]!.urlVariables || {}).length >
+          0 && (
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold">
-              Result {resultError ? "(Error)" : ""}
-            </h3>
+            <h2 className="text-lg font-semibold">URL Variables</h2>
+            {renderUrlVariableFields()}
+          </div>
+        )}
+
+        {/* Params */}
+        {Object.entries(apiEndpoints[endpoint]!.params || {}).length > 0 && (
+          <div className="space-y-2">
+            <h2 className="text-lg font-semibold">Parameters</h2>
+            {renderParamsFields()}
+          </div>
+        )}
+
+        {/* Run Endpoint Button */}
+        <Button onClick={handleRunEndpoint}>Run Endpoint</Button>
+
+        {/* Code Examples */}
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-4">
+            <div>
+              <Label>Select Language</Label>
+              <Select
+                value={codeLang}
+                onValueChange={(val: CodeLang) => setCodeLang(val)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CODE_LANGUAGES.map((lang) => (
+                    <SelectItem key={lang} value={lang}>
+                      {lang}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="showPrivateKey"
+                checked={showPrivateKey}
+                onCheckedChange={(checked) => setShowPrivateKey(!!checked)}
+              />
+              <Label htmlFor="showPrivateKey">Show Private Key</Label>
+            </div>
+          </div>
+
+          <div className="rounded border bg-muted p-4">
+            <pre className="whitespace-pre-wrap break-all text-sm">
+              {codeSamples[codeLang]}
+            </pre>
+          </div>
+        </div>
+
+        {/* Result */}
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">
+            Result {resultError ? "(Error)" : ""}
+          </h3>
+          <div className="rounded border bg-muted p-4">
             <pre
               id="result"
               className="min-h-[200px] overflow-auto rounded bg-muted p-4 text-sm"
@@ -563,9 +588,9 @@ print(response.json())`
               {result}
             </pre>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
