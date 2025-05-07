@@ -1,6 +1,6 @@
 {
   "name": "react-app-template",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "version": "npx genversion --es6 --double ./src/config/version.ts",
