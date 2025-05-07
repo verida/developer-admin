@@ -7,7 +7,13 @@ import React, { useEffect, useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 // shadcn/ui components (adjust imports to match your project)
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -28,6 +34,7 @@ import {
 } from "@/components/ui/select"
 import { commonConfig } from "@/config/common"
 import { SCHEMA_MAP } from "@/features/dcs/schemas"
+import { SANDBOX_AUTH_TOKEN_STORAGE_KEY } from "@/features/sandbox/constants"
 
 interface ApiItem {
   [key: string]: any
@@ -72,7 +79,7 @@ export default function BrowseDataPage() {
   // If no key, redirect to /login
   // ----------------------------
   useEffect(() => {
-    const key = localStorage.getItem("authToken")
+    const key = localStorage.getItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY)
     if (!key) {
       router.push("/sandbox/generate-token")
       return
@@ -90,11 +97,10 @@ export default function BrowseDataPage() {
   // else use defaults. For simplicity, we’ll just load from localStorage here.
   // ----------------------------
   useEffect(() => {
-    // Default to "Connections" schema or the first in SCHEMA_MAP
+    // Default to "Email" schema or the first in SCHEMA_MAP
     // or load from localStorage, etc.
-    const storedSchema =
-      localStorage.getItem("schema") || SCHEMA_MAP["Connections"]
-    setSchema(storedSchema!)
+    const storedSchema = localStorage.getItem("schema") || SCHEMA_MAP["Email"]
+    setSchema(storedSchema || "")
 
     // In your original code, limit=10, offset=0 by default
     setLimit(10)
@@ -263,14 +269,21 @@ export default function BrowseDataPage() {
     }
   }
 
-  // ----------------------------
-  // Render
-  // ----------------------------
   return (
-    <div className="p-6">
+    <div>
       <Card>
         <CardHeader>
           <CardTitle>Browse Data</CardTitle>
+          <CardDescription>
+            Use this interface to browse the data connected via your API key.
+          </CardDescription>
+          <CardDescription>
+            API queries are using the token saved on the{" "}
+            <Link href="/sandbox/token-info" className="underline">
+              Token Info
+            </Link>{" "}
+            page
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Error Alert */}
@@ -280,14 +293,6 @@ export default function BrowseDataPage() {
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           )}
-
-          <p>
-            Use this interface to browse the data connected via your API key.
-          </p>
-          <p>
-            API queries are using the token saved at the
-            <Link href="/sandbox/token-info">Token Info</Link> page
-          </p>
 
           {/* Query Form */}
           <div className="space-y-4">

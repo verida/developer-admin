@@ -1,14 +1,14 @@
-import { RootConnectionHandler } from "@/components/root-connection-handler"
-import { VeridaConnectButton } from "@/features/verida/components/verida-connect-button"
+import { ConnectButton } from "@/features/auth/components/connect-button"
+import { RootAuthenticationHandler } from "@/features/auth/components/root-authentication-handler"
 
 export default function RootPage() {
   return (
-    <RootConnectionHandler>
+    <RootAuthenticationHandler>
       <div className="flex h-full w-full flex-col items-center justify-center gap-4">
         <h1 className="text-2xl font-bold">Verida: AI Developer Admin</h1>
-        <VeridaConnectButton />
+        <ConnectButton />
       </div>
-    </RootConnectionHandler>
+    </RootAuthenticationHandler>
   )
 }
 RootPage.displayName = "RootPage"

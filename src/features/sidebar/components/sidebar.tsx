@@ -4,15 +4,12 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
-import { navItems } from "@/config/nav"
-import type { NavItem } from "@/config/nav"
-import { useVerida } from "@/features/verida/hooks/use-verida"
+import { SIDEBAR_ITEMS } from "@/features/sidebar/constants"
+import type { SidebarItem } from "@/features/sidebar/types"
+import { useVeridaAuth } from "@/features/verida-auth/hooks/use-verida-auth"
 import { cn } from "@/styles/utils"
 
-// If you have a classNames utility
-
-// Example simplified styling for the sidebar link:
-function SidebarLink({ item }: { item: NavItem }) {
+function SidebarLink({ item }: { item: SidebarItem }) {
   const pathname = usePathname()
   const isActive = pathname === item.href
 
@@ -31,13 +28,13 @@ function SidebarLink({ item }: { item: NavItem }) {
   )
 }
 
-export function SidebarNav() {
-  const { disconnect } = useVerida()
+export function Sidebar() {
+  const { disconnect } = useVeridaAuth()
 
   return (
     <nav className="flex h-full flex-col justify-between">
       <div className="space-y-1">
-        {navItems.map((item) => {
+        {SIDEBAR_ITEMS.map((item) => {
           // If the item has nested items (e.g. Sandbox), we can render those as well:
           if (item.items?.length) {
             return (

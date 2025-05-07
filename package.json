@@ -6,7 +6,7 @@
     "version": "npx genversion --es6 --double ./src/config/version.ts",
     "postinstall": "yarn run version",
     "predev": "yarn run version",
-    "dev": "next dev",
+    "dev": "next dev -p 3005",
     "prebuild": "yarn run version",
     "build": "next build",
     "prestart": "yarn run version",
@@ -20,7 +20,7 @@
     "fix": "yarn run fix:format && yarn run fix:lint"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.0",
+    "@radix-ui/react-accordion": "^1.2.8",
     "@radix-ui/react-alert-dialog": "^1.1.5",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-checkbox": "^1.1.3",
@@ -34,8 +34,9 @@
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-switch": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.7",
-    "@verida/types": "^4.4.0",
-    "@verida/web-helpers": "^4.4.1",
+    "@tanstack/query-sync-storage-persister": "^5.74.6",
+    "@tanstack/react-query": "^5.74.4",
+    "@tanstack/react-query-persist-client": "^5.74.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "genversion": "^3.2.0",
@@ -55,10 +56,12 @@
     "@eslint/eslintrc": "^3.2.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.10",
+    "@tanstack/react-query-devtools": "^5.74.6",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "^22.12.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@verida/types": "^4.4.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.19.0",
     "eslint-config-next": "^15.1.6",
@@ -66,12 +69,9 @@
     "eslint-plugin-prettier": "^5.2.3",
     "file-loader": "^6.2.0",
     "postcss": "^8.5.1",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3"
-  },
-  "resolutions": {
-    "qrcode-with-logos": "1.0.3"
+    "typescript": "^5.8.3"
   }
 }

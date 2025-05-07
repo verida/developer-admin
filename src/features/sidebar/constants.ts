@@ -1,19 +1,14 @@
-export interface NavItem {
-  title: string
-  href: string
-  // Optional nested items for collapsible or nested navigation
-  items?: NavItem[]
-}
+import type { SidebarItem } from "@/features/sidebar/types"
 
-export const navItems: NavItem[] = [
+export const SIDEBAR_ITEMS: SidebarItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard",
   },
-  {
-    title: "Credits",
-    href: "/credits",
-  },
+  // {
+  //   title: "Credits",
+  //   href: "/credits",
+  // },
   {
     title: "Sandbox",
     href: "/sandbox",

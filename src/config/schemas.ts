@@ -1,32 +1,15 @@
-import { Network } from "@verida/types"
 import { z } from "zod"
 
 export const CommonConfigSchema = z.object({
   BASE_URL: z.string().url(),
   DCS_URL: z.string().url(),
   VAULT_AUTH_ENDPOINT: z.string().url(),
+  VERIDA_APP_DID: z.string(),
   DEV_MODE: z
     .string()
     .optional()
     .transform((value) => value === "true"),
-  VERIDA_NETWORK: z
-    .enum(["myrtle", "banksia", "devnet", "local"])
-    .default("banksia")
-    .transform((value) => {
-      return value === "myrtle"
-        ? Network.MYRTLE
-        : value === "banksia"
-          ? Network.BANKSIA
-          : value === "devnet"
-            ? Network.DEVNET
-            : value === "local"
-              ? Network.LOCAL
-              : Network.BANKSIA
-    }),
-  VERIDA_RPC_URL: z
-    .union([z.string().url(), z.literal("")])
-    .optional()
-    .transform((value) => (value === "" ? undefined : value)),
+  LOG_LEVEL: z.enum(["error", "warn", "info", "debug"]).default("info"),
   isClient: z.boolean(),
   appVersion: z.string(),
 })

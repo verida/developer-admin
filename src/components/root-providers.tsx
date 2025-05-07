@@ -4,8 +4,9 @@ import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { Suspense } from "react"
 
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { QueriesProvider } from "@/features/queries/queries-provider"
 import { ThemesProvider } from "@/features/themes/themes-provider"
-import { VeridaProvider } from "@/features/verida/components/verida-provider"
+import { VeridaAuthProvider } from "@/features/verida-auth/components/verida-auth-provider"
 
 export interface RootProvidersProps {
   children: React.ReactNode
@@ -21,7 +22,9 @@ export function RootProviders(props: RootProvidersProps) {
       <NuqsAdapter>
         <ThemesProvider>
           <TooltipProvider>
-            <VeridaProvider>{children}</VeridaProvider>
+            <QueriesProvider>
+              <VeridaAuthProvider>{children}</VeridaAuthProvider>
+            </QueriesProvider>
           </TooltipProvider>
         </ThemesProvider>
       </NuqsAdapter>

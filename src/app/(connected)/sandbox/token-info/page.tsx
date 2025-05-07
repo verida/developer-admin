@@ -1,12 +1,13 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 
-import { Alert } from "@/components/ui/alert"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -17,109 +18,94 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-// Example API fetcher (replace with your actual API logic)
 import { fetchTokenData } from "@/features/dcs/api"
-
-// Helper to mask token (first 8, then "..............", then last 8)
-function maskToken(token: string) {
-  // If shorter than 16, just show all
-  if (token.length < 16) return token
-  const start = token.slice(0, 8)
-  const end = token.slice(-8)
-  return `${start}..............${end}`
-}
+import { SANDBOX_AUTH_TOKEN_STORAGE_KEY } from "@/features/sandbox/constants"
 
 export default function TokenInfoPage() {
-  const [token, setToken] = useState<string>("")
-  const [tokenInfo, setTokenInfo] = useState<any>(null)
-  const [error, setError] = useState<string>("")
+  const [token, setTokenInternal] = useState("")
+  const [tokenInfo, setTokenInfo] = useState<Record<string, unknown> | null>(
+    null
+  )
+  const [error, setError] = useState("")
+  const [loadDialogOpen, setLoadDialogOpen] = useState(false)
+  const [newToken, setNewToken] = useState("")
 
-  // State for "Load token" dialog
-  const [dialogOpen, setDialogOpen] = useState<boolean>(false)
-  const [newToken, setNewToken] = useState<string>("")
-
-  // State for "View current token" dialog
-  const [viewDialogOpen, setViewDialogOpen] = useState<boolean>(false)
-  const [viewToken, setViewToken] = useState<string>("")
-
-  // On page load, read token from localStorage
-  useEffect(() => {
-    const storedToken = localStorage.getItem("authToken")
-    if (storedToken) {
-      setToken(storedToken)
-      // Auto-fetch info
-      handleFetchTokenInfo(storedToken)
+  const setToken = useCallback((_token: string | null) => {
+    setTokenInternal(_token || "")
+    if (_token) {
+      localStorage.setItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY, _token)
+    } else {
+      localStorage.removeItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY)
     }
   }, [])
 
-  // Fetch token info from your API
-  async function handleFetchTokenInfo(forcedToken?: string) {
+  const handleClearToken = useCallback(() => {
+    setToken(null)
+    setTokenInfo(null)
+  }, [setToken])
+
+  const handleFetchTokenInfo = useCallback(async (_token: string) => {
     try {
       setError("")
       setTokenInfo(null)
-
-      const currentToken = forcedToken ?? token
-      if (!currentToken) {
-        setError("No token to fetch info for.")
-        return
-      }
-
-      const data = await fetchTokenData(currentToken)
-      setTokenInfo(data)
-    } catch (err: any) {
-      setError(err.message)
+      const _tokenInfo = await fetchTokenData(_token)
+      setTokenInfo(_tokenInfo)
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong getting the token info"
+      )
     }
-  }
+  }, [])
 
-  // Load (save) new token from the "Load token" dialog
-  function handleLoadToken() {
-    localStorage.setItem("authToken", newToken)
-    setToken(newToken)
-    setDialogOpen(false)
-    handleFetchTokenInfo(newToken)
-  }
-
-  function handleClearToken() {
-    localStorage.removeItem("authToken")
-    setToken("")
-  }
-
-  // View the current token in a dialog
-  function handleViewCurrentToken() {
-    const storedToken = localStorage.getItem("authToken")
+  useEffect(() => {
+    // Triggered only on mount
+    const storedToken = localStorage.getItem(SANDBOX_AUTH_TOKEN_STORAGE_KEY)
     if (storedToken) {
-      setViewToken(storedToken)
-      setViewDialogOpen(true)
-    } else {
-      setError("No token found in local storage.")
+      setToken(storedToken)
     }
-  }
+  }, [setToken])
 
-  // Copy token to clipboard
-  function handleCopyToken() {
-    navigator.clipboard.writeText(viewToken).then(() => {})
-  }
+  useEffect(() => {
+    if (!token) {
+      return
+    }
+
+    handleFetchTokenInfo(token).catch(() => {
+      // TODO: handle error
+    })
+  }, [handleFetchTokenInfo, token])
+
+  const handleLoadToken = useCallback(() => {
+    setToken(newToken)
+    setLoadDialogOpen(false)
+    setNewToken("")
+  }, [newToken, setToken])
 
   return (
-    <div className="p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Token Info</CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
+    <Card>
+      <CardHeader>
+        <CardTitle>Token Info</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {token ? (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="loaded-token">Token:</Label>
+            <Input id="loaded-token" value={token} readOnly />
+          </div>
+        ) : (
+          <Alert variant="destructive">
+            <AlertDescription>No token loaded</AlertDescription>
+          </Alert>
+        )}
+        <div className="flex flex-wrap gap-2">
           {token ? (
-            <div className="space-y-2">
-              <Label>Current token</Label>
-              <Input value={maskToken(token)} readOnly />
-            </div>
+            <Button variant="outline" onClick={handleClearToken}>
+              Clear Token
+            </Button>
           ) : (
-            <Alert variant="destructive">No token loaded</Alert>
-          )}
-
-          <div className="flex flex-wrap gap-2">
-            {/* Load token dialog */}
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={loadDialogOpen} onOpenChange={setLoadDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="default">Load token</Button>
               </DialogTrigger>
@@ -140,72 +126,27 @@ export default function TokenInfoPage() {
                     onChange={(e) => setNewToken(e.target.value)}
                   />
                 </div>
-
                 <DialogFooter>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
+                  <DialogClose asChild>
+                    <Button variant="secondary">Cancel</Button>
+                  </DialogClose>
                   <Button onClick={handleLoadToken}>Load</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-
-            {token && (
-              <div>
-                {/* View current token dialog */}
-                <Button variant="outline" onClick={handleViewCurrentToken}>
-                  View current token
-                </Button>
-                <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Current Token</DialogTitle>
-                      <DialogDescription>
-                        Below is your full token from local storage.
-                      </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="space-y-2">
-                      <Label>Token (full)</Label>
-                      <div className="flex items-center gap-2">
-                        <Input value={viewToken} readOnly className="flex-1" />
-                        <Button variant="secondary" onClick={handleCopyToken}>
-                          Copy
-                        </Button>
-                      </div>
-                    </div>
-
-                    <DialogFooter>
-                      <Button
-                        variant="default"
-                        onClick={() => setViewDialogOpen(false)}
-                      >
-                        Close
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-
-                {/* Manually re-fetch token info */}
-                <Button variant="outline" onClick={() => handleClearToken()}>
-                  Clear Token
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Error or token info display */}
-          {error && <p className="text-red-500">Error: {error}</p>}
-          {tokenInfo && (
-            <pre className="overflow-auto rounded bg-muted p-4 text-sm">
-              {JSON.stringify(tokenInfo, null, 2)}
-            </pre>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+        {error ? (
+          <Alert variant="destructive">
+            <AlertDescription>Error: {error}</AlertDescription>
+          </Alert>
+        ) : null}
+        {tokenInfo ? (
+          <pre className="overflow-auto rounded bg-muted p-4 text-sm">
+            {JSON.stringify(tokenInfo, null, 2)}
+          </pre>
+        ) : null}
+      </CardContent>
+    </Card>
   )
 }

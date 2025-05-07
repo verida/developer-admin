@@ -1,18 +1,32 @@
 "use client"
 
-import { Disclosure } from "@headlessui/react"
-import Image from "next/image"
-import React, { useEffect, useState } from "react"
+import Link from "next/link"
+import React, { useEffect, useMemo, useState } from "react"
 
+import { VeridaNetworkLogo } from "@/assets/verida-network-logo"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { commonConfig } from "@/config/common"
 import { fetchScopes } from "@/features/dcs/api"
 import type { Scope } from "@/features/dcs/interfaces"
-import { useVerida } from "@/features/verida/hooks/use-verida"
+import { getTokenGeneratedPageRoute } from "@/features/routes/utils"
+import { useVeridaAuth } from "@/features/verida-auth/hooks/use-verida-auth"
+import type { VeridaAuthRequest } from "@/features/verida-auth/type"
+import { buildVeridaAuthRequestUrl } from "@/features/verida-auth/utils"
 
 const DEFAULT_SCOPES = [
   "api:ds-query",
@@ -22,17 +36,13 @@ const DEFAULT_SCOPES = [
   "ds:social-email",
 ]
 
-const AUTH_ENDPOINT = commonConfig.VAULT_AUTH_ENDPOINT
-const RETURN_URL = `${commonConfig.BASE_URL}/sandbox/token-generated`
-
 export default function GenerateApiKeyPage() {
   const [scopes, setScopes] = useState<Record<string, Scope>>({})
-  const { did } = useVerida()
-  const [selectedScopes, setSelectedScopes] = useState<string[]>([
-    ...DEFAULT_SCOPES,
-  ])
+  const { authDetails } = useVeridaAuth()
+  const [selectedScopes, setSelectedScopes] = useState<string[]>(DEFAULT_SCOPES)
 
   async function onLoad() {
+    // TODO: Optimise with a React Query hook
     setScopes(await fetchScopes())
   }
 
@@ -40,15 +50,21 @@ export default function GenerateApiKeyPage() {
     onLoad()
   }, [])
 
-  function buildConnectUrl(): string {
-    const redirectUrl = new URL(AUTH_ENDPOINT)
-    for (const scope of selectedScopes) {
-      redirectUrl.searchParams.append("scopes", scope)
+  const sandboxVeridaAuthRequestUrl = useMemo(() => {
+    if (!authDetails?.did) {
+      return "#"
     }
-    redirectUrl.searchParams.append("redirectUrl", RETURN_URL)
-    redirectUrl.searchParams.append("appDID", did!)
-    return redirectUrl.toString()
-  }
+
+    const request: VeridaAuthRequest = {
+      appDid: authDetails.did,
+      payer: "app",
+      scopes: selectedScopes,
+      redirectUrl: `${commonConfig.BASE_URL}${getTokenGeneratedPageRoute()}`,
+    }
+
+    const url = buildVeridaAuthRequestUrl(request)
+    return url.toString()
+  }, [authDetails?.did, selectedScopes])
 
   function handleScopeToggle(scope: string, checked: boolean) {
     setSelectedScopes((prev) => {
@@ -63,153 +79,116 @@ export default function GenerateApiKeyPage() {
     })
   }
 
-  function handleConnectVerida() {
-    window.location.href = buildConnectUrl()
-  }
-
-  // Render
   return (
-    <div className="p-4 md:p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Connect to Verida</CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
-            Use this example page to select the scopes you wish to request, then
-            click <strong>Connect Verida</strong> to be directed to the Verida
-            Vault to obtain an API authentication token.
-          </p>
-
-          {/* Scopes list */}
-          <div>
-            {Object.entries(scopes).length === 0 && (
-              <p className="text-sm text-muted-foreground">Loading scopes...</p>
-            )}
-
-            {/* Collapsible sections for different scope groups */}
-            <div className="space-y-4">
-              {/* API Scopes Section */}
-              <Disclosure>
-                {({ open }) => (
-                  <div>
-                    <Disclosure.Button className="text-lg font-semibold">
-                      API Scopes {open ? "-" : "+"}
-                    </Disclosure.Button>
-                    <Disclosure.Panel>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {Object.entries(scopes)
-                          .filter(([key, scope]) => scope.type === "api")
-                          .map(([scopeKey, scopeDef], idx) => {
-                            const isChecked = selectedScopes.includes(scopeKey)
-                            return (
-                              <div
-                                key={scopeKey}
-                                className="flex items-start space-x-2"
-                              >
-                                <Checkbox
-                                  id={`scope-${idx}`}
-                                  checked={isChecked}
-                                  onCheckedChange={(checked: boolean) =>
-                                    handleScopeToggle(scopeKey, checked)
-                                  }
-                                />
-                                <Label
-                                  htmlFor={`scope-${idx}`}
-                                  className="whitespace-normal break-words leading-tight"
-                                >
-                                  <span className="font-medium">
-                                    {scopeKey}
-                                  </span>
-                                  <br />
-                                  <span className="text-sm text-muted-foreground">
-                                    {scopeDef.description}
-                                  </span>
-                                  {scopeDef.credits && (
-                                    <div className="mt-1 text-sm text-muted-foreground">
-                                      <strong>{scopeDef.credits}</strong>{" "}
-                                      credits
-                                    </div>
-                                  )}
-                                </Label>
-                              </div>
-                            )
-                          })}
+    <Card>
+      <CardHeader>
+        <CardTitle>Connect to Verida</CardTitle>
+        <CardDescription>
+          Use this example page to select the scopes you wish to request, then
+          click <strong className="font-semibold">Connect Verida</strong> to be
+          directed to the Verida Vault to obtain an API authentication token.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {Object.entries(scopes).length === 0 && (
+          <p className="text-sm text-muted-foreground">Loading scopes...</p>
+        )}
+        <Accordion type="multiple">
+          <AccordionItem value="api">
+            <AccordionTrigger>Operations (API) Scopes</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {Object.entries(scopes)
+                  .filter(([, scope]) => scope.type === "api")
+                  .map(([scopeKey, scopeDef], idx) => {
+                    const isChecked = selectedScopes.includes(scopeKey)
+                    return (
+                      <div
+                        key={scopeKey}
+                        className="flex items-start space-x-2"
+                      >
+                        <Checkbox
+                          id={`scope-${idx}`}
+                          checked={isChecked}
+                          onCheckedChange={(checked: boolean) =>
+                            handleScopeToggle(scopeKey, checked)
+                          }
+                        />
+                        <Label
+                          htmlFor={`scope-${idx}`}
+                          className="whitespace-normal break-words leading-tight"
+                        >
+                          <span className="font-medium">{scopeKey}</span>
+                          <br />
+                          <span className="text-sm text-muted-foreground">
+                            {scopeDef.description}
+                          </span>
+                          {scopeDef.credits && (
+                            <div className="mt-1 text-sm text-muted-foreground">
+                              <strong>{scopeDef.credits}</strong> credits
+                            </div>
+                          )}
+                        </Label>
                       </div>
-                    </Disclosure.Panel>
-                  </div>
-                )}
-              </Disclosure>
-
-              {/* Datastore Scopes Section */}
-              <Disclosure>
-                {({ open }) => (
-                  <div>
-                    <Disclosure.Button className="text-lg font-semibold">
-                      Datastore Scopes {open ? "-" : "+"}
-                    </Disclosure.Button>
-                    <Disclosure.Panel>
-                      <div className="grid grid-cols-1 gap-4">
-                        {Object.entries(scopes)
-                          .filter(([key, scope]) => scope.type === "ds")
-                          .map(([scopeKey, scopeDef], idx) => {
-                            const isChecked = selectedScopes.includes(scopeKey)
-                            return (
-                              <div
-                                key={scopeKey}
-                                className="flex items-start space-x-2"
-                              >
-                                <Checkbox
-                                  id={`scope-${idx}`}
-                                  checked={isChecked}
-                                  onCheckedChange={(checked: boolean) =>
-                                    handleScopeToggle(scopeKey, checked)
-                                  }
-                                />
-                                <Label
-                                  htmlFor={`scope-${idx}`}
-                                  className="whitespace-normal break-words leading-tight"
-                                >
-                                  <span className="font-medium">
-                                    {scopeKey}
-                                  </span>
-                                  <br />
-                                  <span className="text-sm text-muted-foreground">
-                                    {scopeDef.description}
-                                  </span>
-                                </Label>
-                              </div>
-                            )
-                          })}
+                    )
+                  })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="data">
+            <AccordionTrigger>Data Scopes</AccordionTrigger>
+            <AccordionContent>
+              <div className="grid grid-cols-1 gap-4">
+                {Object.entries(scopes)
+                  .filter(([, scope]) => scope.type === "ds")
+                  .map(([scopeKey, scopeDef], idx) => {
+                    const isChecked = selectedScopes.includes(scopeKey)
+                    return (
+                      <div
+                        key={scopeKey}
+                        className="flex items-start space-x-2"
+                      >
+                        <Checkbox
+                          id={`scope-${idx}`}
+                          checked={isChecked}
+                          onCheckedChange={(checked: boolean) =>
+                            handleScopeToggle(scopeKey, checked)
+                          }
+                        />
+                        <Label
+                          htmlFor={`scope-${idx}`}
+                          className="whitespace-normal break-words leading-tight"
+                        >
+                          <span className="font-medium">{scopeKey}</span>
+                          <br />
+                          <span className="text-sm text-muted-foreground">
+                            {scopeDef.description}
+                          </span>
+                        </Label>
                       </div>
-                    </Disclosure.Panel>
-                  </div>
-                )}
-              </Disclosure>
-            </div>
-          </div>
+                    )
+                  })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
-          <Separator />
-
-          {/* Connect Section */}
-          <div className="space-y-4">
-            <a href={buildConnectUrl()}>
-              <Image
-                src="https://assets.verida.io/auth/Connect-Verida.png"
-                alt="Connect Verida"
-                width={200}
-                height={30}
-                className="h-auto w-auto"
-              />
-            </a>
-            <div>
-              <p className="mb-1 text-sm text-muted-foreground">Connect URL:</p>
-              <p className="break-all text-sm">{buildConnectUrl()}</p>
-            </div>
+        <div className="flex flex-col gap-4">
+          <Button className="w-fit" asChild>
+            <Link
+              href={sandboxVeridaAuthRequestUrl}
+              className="flex flex-row items-center gap-2"
+            >
+              <VeridaNetworkLogo className="text-primary-foreground" />
+              <span>Connect Verida</span>
+            </Link>
+          </Button>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm text-muted-foreground">Connect URL:</p>
+            <p className="break-all text-sm">{sandboxVeridaAuthRequestUrl}</p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
